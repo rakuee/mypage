@@ -96,13 +96,15 @@ strong { font-weight: 650; }
 /* Portada: un poco más de aire y, de fondo, el calendario del sol.
    El velo negro (78-94 %) deja el texto legible sobre los brillos de la piedra
    —blanco 18:1, oro 7.8:1— y al final se funde con el negro de la sección
-   siguiente. La imagen está recortada a su zona central por background-size. */
+   siguiente. La imagen está recortada a su zona central por background-size.
+   La ruta del url() es relativa a ESTE archivo (css/), no al HTML: de ahí el
+   ../ para llegar a assets/, y las comillas porque el nombre lleva espacios. */
 .hero {
   padding-block: clamp(4.5rem, 3rem + 8vw, 9rem);
   background-color: var(--bg);
   background-image:
     linear-gradient(180deg, rgba(0, 0, 0, 0.78) 0%, rgba(0, 0, 0, 0.8) 50%, rgba(0, 0, 0, 0.94) 100%),
-    url("assets/fondo del calendario del sol.jpg");
+    url("../assets/fondo del calendario del sol.jpg");
   background-size: cover, cover;
   background-position: center, center;
   background-repeat: no-repeat, no-repeat;

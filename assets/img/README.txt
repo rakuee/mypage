@@ -20,8 +20,12 @@ assets — imágenes del sitio
 
 3) Fondo del inicio  ->  YA COLOCADO
    - Archivo en uso:  "assets/fondo del calendario del sol.jpg" (1200 x 480 px,
-     248 KB). Ojo: el nombre lleva espacios, por eso en el CSS va entre comillas:
-       url("assets/fondo del calendario del sol.jpg")
+     248 KB). Ojo: el nombre lleva espacios, por eso en el CSS va entre comillas.
+   - En css/styles.css la ruta se escribe así:
+       url("../assets/fondo del calendario del sol.jpg")
+     El ../ es obligatorio: dentro de una hoja de estilo las rutas se resuelven
+     respecto al propio .css (que está en css/), no respecto al index.html. Sin
+     el ../ el navegador pide /css/assets/... y la imagen no aparece.
    - Sólo se usa en la portada (.hero de css/styles.css), no en el resto del
      sitio.
    - Encima lleva un velo negro (78 % arriba, 80 % al centro, 94 % abajo) para
