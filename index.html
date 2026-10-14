@@ -42,6 +42,7 @@
       <a href="#inicio">Inicio</a>
       <a href="#estudiante">Estudiante</a>
       <a href="#proyectos">Proyectos</a>
+      <a href="pokedex/">Pokédex</a>
       <a href="#contacto">Contacto</a>
     </nav>
   </div>
@@ -208,12 +209,39 @@
 
       </div>
 
-      <!-- ====== RUTA RESERVADA: /pokedex/ ======
-           El enlace se activa cuando pokedex/index.html exista.
-           Para activarlo: descomenta el <a> y borra el <span> de abajo. -->
-      <p class="soon">
-        <a class="link-arrow" href="pokedex/">
+    </div>
+  </section>
+
+  <!-- ============ POKÉDEX ============ -->
+  <section class="section" id="pokedex" aria-labelledby="pokedex-title">
+    <div class="wrap">
+      <h2 id="pokedex-title">Pokédex</h2>
+      <p class="section-sub muted">
+        <span class="badge">Aplicación web</span>
+        Buscador, filtros por tipo y detalle sobre los 1351 Pokémon de PokeAPI.
       </p>
+
+      <article class="card project">
+        <header class="project-head">
+          <h3>Pokédex interactiva</h3>
+          <p class="tags"><span class="tag">JavaScript</span><span class="tag">PokeAPI</span><span class="tag">CSS Grid</span><span class="tag">Sin dependencias</span></p>
+        </header>
+        <p>
+          Buscador por nombre o número, filtro por tipo, paginación y una ventana de detalle
+          con imagen oficial, tipos, estadísticas base, evoluciones y ventajas y debilidades
+          de cada tipo. El catálogo completo se carga desde PokeAPI y se guarda en caché local
+          para que moverse entre páginas sea inmediato.
+        </p>
+        <p class="muted small">
+          Aplicación propia de este sitio, no un repositorio: vive en su propia ruta
+          y funciona como página independiente.
+        </p>
+        <div class="project-actions">
+          <a class="link-arrow" href="pokedex/">
+            Abrir la Pokédex <span aria-hidden="true">→</span>
+          </a>
+        </div>
+      </article>
     </div>
   </section>
 

@@ -276,18 +276,11 @@ strong { font-weight: 650; }
 .fact-key { color: var(--muted); }
 .fact-val { text-align: right; }
 
-/* ---------- Pokedex (ruta reservada) ---------- */
-
-.soon {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-top: 2rem;
-  font-size: 0.9375rem;
-}
+/* ---------- Pokedex ---------- */
 
 .badge {
+  display: inline-block;
+  margin-right: 0.5rem;
   font-size: 0.6875rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -295,6 +288,7 @@ strong { font-weight: 650; }
   border-radius: 999px;
   padding: 0.2rem 0.65rem;
   color: var(--muted);
+  vertical-align: middle;
 }
 
 /* ---------- Footer y notas ---------- */
