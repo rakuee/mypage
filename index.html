@@ -46,6 +46,13 @@
       <a href="#contacto">Contacto</a>
     </nav>
   </div>
+
+  <!-- Regla graduada: marca en qué parte de la página estás. Decorativa. -->
+  <div class="ruler" id="ruler" aria-hidden="true">
+    <div class="ruler-ticks"></div>
+    <div class="ruler-labels" id="rulerLabels"></div>
+    <div class="ruler-needle" id="rulerNeedle" hidden></div>
+  </div>
 </header>
 
 <main id="inicio">
@@ -122,78 +129,93 @@
   <section class="section" id="proyectos" aria-labelledby="proyectos-title">
     <div class="wrap">
       <h2 id="proyectos-title">Proyectos en GitHub</h2>
-      <p class="section-sub muted">Tres repositorios públicos. El enlace abre el código; el comando clona.</p>
+      <p class="section-sub muted">Tres repositorios públicos. Pulsa un nombre para ver de qué trata y abrir el código.</p>
 
-      <div class="grid">
+      <div class="projects">
 
-        <article class="card project">
-          <header class="project-head">
+        <details class="pitem" name="proyectos">
+          <summary class="pitem-head">
             <h3>infoEscuelasMX</h3>
-            <p class="tags"><span class="tag">Python</span><span class="tag">Django</span><span class="tag">Leaflet</span><span class="tag">PostgreSQL</span></p>
-          </header>
-          <p>
-            Buscador de escuelas cerca de ti. Pides un nivel educativo (preescolar, primaria
-            o secundaria) y cuántos resultados quieres; la plataforma toma tu ubicación,
-            calcula distancias por proximidad radial y devuelve una lista con nombre y
-            dirección, más un mapa interactivo con marcadores.
-          </p>
-          <p class="muted small">
-            Proyecto colaborativo de estudiantes de la ENES Morelia, construido sobre el catálogo
-            de Centros de Trabajo de la SEP. Formé parte del equipo como responsable del proyecto.
-          </p>
-          <div class="project-actions">
-            <a class="link-arrow" href="https://github.com/Narhada/infoEscuelasMX" target="_blank" rel="noopener noreferrer">
-              Ver repositorio <span aria-hidden="true">↗</span>
-            </a>
-            <button class="copy" type="button" data-copy="git clone https://github.com/Narhada/infoEscuelasMX.git">Copiar comando</button>
+            <span class="pitem-mark" aria-hidden="true"></span>
+          </summary>
+          <div class="pitem-body">
+            <div class="pitem-body-in">
+              <p class="tags"><span class="tag">Python</span><span class="tag">Django</span><span class="tag">Leaflet</span><span class="tag">PostgreSQL</span></p>
+              <p>
+                Buscador de escuelas cerca de ti. Pides un nivel educativo (preescolar, primaria
+                o secundaria) y cuántos resultados quieres; la plataforma toma tu ubicación,
+                calcula distancias por proximidad radial y devuelve una lista con nombre y
+                dirección, más un mapa interactivo con marcadores.
+              </p>
+              <p class="muted small">
+                Proyecto colaborativo de estudiantes de la ENES Morelia, construido sobre el catálogo
+                de Centros de Trabajo de la SEP. Formé parte del equipo como responsable del proyecto.
+              </p>
+              <div class="project-actions">
+                <a class="link-arrow" href="https://github.com/Narhada/infoEscuelasMX" target="_blank" rel="noopener noreferrer">
+                  Ver repositorio en GitHub <span aria-hidden="true">↗</span>
+                </a>
+                <button class="copy" type="button" data-copy="git clone https://github.com/Narhada/infoEscuelasMX.git">Copiar comando</button>
+              </div>
+            </div>
           </div>
-        </article>
+        </details>
 
-        <article class="card project">
-          <header class="project-head">
+        <details class="pitem" name="proyectos">
+          <summary class="pitem-head">
             <h3>Modeling_of_Social_Influence</h3>
-            <p class="tags"><span class="tag">Python</span><span class="tag">Simulación</span><span class="tag">Agentes</span><span class="tag">GPL-3.0</span></p>
-          </header>
-          <p>
-            ¿Cómo cambia lo que piensa una persona según su entorno? Cada individuo es un
-            agente con una opinión y un ambiente formado por familia, amistades, vecinos,
-            trabajo, medios y redes sociales. Los agentes interactúan y actualizan su opinión
-            por exposición, conformidad, persuasión, identidad y algoritmos.
-          </p>
-          <p class="muted small">
-            El objetivo es observar cómo emergen patrones colectivos: consenso, polarización
-            y cámaras de eco. Código bajo licencia GNU/GPL v3.0.
-          </p>
-          <div class="project-actions">
-            <a class="link-arrow" href="https://github.com/rakuee/Modeling_of_Social_Influence" target="_blank" rel="noopener noreferrer">
-              Ver repositorio <span aria-hidden="true">↗</span>
-            </a>
-            <button class="copy" type="button" data-copy="git clone https://github.com/rakuee/Modeling_of_Social_Influence.git">Copiar comando</button>
+            <span class="pitem-mark" aria-hidden="true"></span>
+          </summary>
+          <div class="pitem-body">
+            <div class="pitem-body-in">
+              <p class="tags"><span class="tag">Python</span><span class="tag">Simulación</span><span class="tag">Agentes</span><span class="tag">GPL-3.0</span></p>
+              <p>
+                ¿Cómo cambia lo que piensa una persona según su entorno? Cada individuo es un
+                agente con una opinión y un ambiente formado por familia, amistades, vecinos,
+                trabajo, medios y redes sociales. Los agentes interactúan y actualizan su opinión
+                por exposición, conformidad, persuasión, identidad y algoritmos.
+              </p>
+              <p class="muted small">
+                El objetivo es observar cómo emergen patrones colectivos: consenso, polarización
+                y cámaras de eco. Código bajo licencia GNU/GPL v3.0.
+              </p>
+              <div class="project-actions">
+                <a class="link-arrow" href="https://github.com/rakuee/Modeling_of_Social_Influence" target="_blank" rel="noopener noreferrer">
+                  Ver repositorio en GitHub <span aria-hidden="true">↗</span>
+                </a>
+                <button class="copy" type="button" data-copy="git clone https://github.com/rakuee/Modeling_of_Social_Influence.git">Copiar comando</button>
+              </div>
+            </div>
           </div>
-        </article>
+        </details>
 
-        <article class="card project">
-          <header class="project-head">
+        <details class="pitem" name="proyectos">
+          <summary class="pitem-head">
             <h3>mintic-base</h3>
-            <p class="tags"><span class="tag">Python</span><span class="tag">NumPy</span><span class="tag">Minería de datos</span><span class="tag">Docencia</span></p>
-          </header>
-          <p>
-            Repositorio plantilla del curso de Minería de Datos: cada subpaquete
-            (<code>eda</code>, <code>ensemble</code>, <code>kmeans</code>, <code>dbscan</code>,
-            <code>apriori</code>, <code>pca</code>) se desarrolla a mano, para entender el
-            algoritmo por dentro y no solo usarlo.
-          </p>
-          <p class="muted small">
-            Regla del curso: la única librería numérica permitida para el cálculo es NumPy.
-            <code>pandas</code> solo para cargar datos y <code>matplotlib</code> para visualizar.
-          </p>
-          <div class="project-actions">
-            <a class="link-arrow" href="https://github.com/rakuee/mintic-base" target="_blank" rel="noopener noreferrer">
-              Ver repositorio <span aria-hidden="true">↗</span>
-            </a>
-            <button class="copy" type="button" data-copy="git clone https://github.com/rakuee/mintic-base.git">Copiar comando</button>
+            <span class="pitem-mark" aria-hidden="true"></span>
+          </summary>
+          <div class="pitem-body">
+            <div class="pitem-body-in">
+              <p class="tags"><span class="tag">Python</span><span class="tag">NumPy</span><span class="tag">Minería de datos</span><span class="tag">Docencia</span></p>
+              <p>
+                Repositorio plantilla del curso de Minería de Datos: cada subpaquete
+                (<code>eda</code>, <code>ensemble</code>, <code>kmeans</code>, <code>dbscan</code>,
+                <code>apriori</code>, <code>pca</code>) se desarrolla a mano, para entender el
+                algoritmo por dentro y no solo usarlo.
+              </p>
+              <p class="muted small">
+                Regla del curso: la única librería numérica permitida para el cálculo es NumPy.
+                <code>pandas</code> solo para cargar datos y <code>matplotlib</code> para visualizar.
+              </p>
+              <div class="project-actions">
+                <a class="link-arrow" href="https://github.com/rakuee/mintic-base" target="_blank" rel="noopener noreferrer">
+                  Ver repositorio en GitHub <span aria-hidden="true">↗</span>
+                </a>
+                <button class="copy" type="button" data-copy="git clone https://github.com/rakuee/mintic-base.git">Copiar comando</button>
+              </div>
+            </div>
           </div>
-        </article>
+        </details>
 
       </div>
 

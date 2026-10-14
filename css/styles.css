@@ -15,7 +15,13 @@
   --oro: #c8a45c;    /* oro UNAM, solo como acento */
   --radius: 12px;
   --wrap: 1040px;
-  --gap: 1.25rem;
+  /* Grotesca cuadrada del sistema: Bahnschrift (tipo DIN) en Windows,
+     Franklin Gothic si no, y grotescas neutras en macOS y Linux. */
+  --sans: "Bahnschrift", "Franklin Gothic Medium", "Franklin Gothic Book",
+          "Helvetica Neue", Helvetica, Arial, "Liberation Sans", "DejaVu Sans", sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  /* Permite animar alturas automáticas (paneles desplegables). */
+  interpolate-size: allow-keywords;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -29,7 +35,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: var(--sans);
   font-size: clamp(1rem, 0.95rem + 0.2vw, 1.0625rem);
   line-height: 1.65;
   letter-spacing: 0.01em;
@@ -58,7 +64,7 @@ a { color: var(--text); text-decoration-color: var(--line-strong); text-underlin
 a:hover { text-decoration-color: var(--oro); }
 
 code {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-family: var(--mono);
   font-size: 0.875em;
   background: var(--surface-2);
   border: 1px solid var(--line);
@@ -82,7 +88,7 @@ strong { font-weight: 650; }
 
 /* ---------- Layout ---------- */
 
-.section { padding-block: clamp(4rem, 3rem + 6vw, 8rem); scroll-margin-top: 5rem; }
+.section { padding-block: clamp(4rem, 3rem + 6vw, 8rem); scroll-margin-top: 6rem; }
 
 /* La portada respira un poco más que el resto de secciones */
 .hero { padding-block: clamp(4.5rem, 3rem + 8vw, 9rem); }
@@ -105,6 +111,69 @@ strong { font-weight: 650; }
   gap: 1rem;
   min-height: 4rem;
 }
+
+/* ---------- Regla graduada del encabezado ----------
+   Decorativa (aria-hidden en el HTML). Las marcas son dos gradientes repetidos
+   y los números los escribe js/main.js. Al desplazarte se agranda; al detenerte
+   se contrae, pero nunca desaparece. La caja mide siempre lo mismo para no
+   alterar la altura del encabezado (y con ella la del documento) al hacer scroll. */
+
+.ruler {
+  position: relative;
+  height: 1.5rem;
+  overflow: hidden;
+  border-top: 1px solid var(--line);
+}
+
+.ruler-ticks {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 7px;
+  opacity: 0.7;
+  transform-origin: bottom center;
+  /* Marcas menores cada 5 % y mayores cada 10 % */
+  background-image:
+    repeating-linear-gradient(to right, var(--muted) 0 1px, transparent 1px 10%),
+    repeating-linear-gradient(to right, var(--line-strong) 0 1px, transparent 1px 5%);
+  transition: height 0.35s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.35s ease;
+}
+
+.ruler.is-moving .ruler-ticks { height: 13px; opacity: 1; }
+
+.ruler-labels { position: absolute; inset: 0; }
+
+.ruler-labels span {
+  position: absolute;
+  bottom: 0.3rem;
+  font-family: var(--mono);
+  font-size: 0.5625rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+  opacity: 0.38;
+  transform: translateX(var(--tx, -50%)) scale(0.9);
+  transform-origin: var(--to, bottom center);
+  transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1), color 0.3s ease;
+}
+
+.ruler.is-moving .ruler-labels span {
+  opacity: 0.95;
+  color: var(--text);
+  transform: translateX(var(--tx, -50%)) scale(1.18);
+}
+
+.ruler-needle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--oro);
+  box-shadow: 0 0 8px rgba(200, 164, 92, 0.55);
+}
+.ruler-needle[hidden] { display: none; }
 
 .brand {
   display: inline-flex;
@@ -176,15 +245,70 @@ strong { font-weight: 650; }
   padding: clamp(1.25rem, 3vw, 1.75rem);
 }
 
-.grid {
-  display: grid;
-  gap: var(--gap);
-  grid-template-columns: 1fr;
-}
+/* ---------- Lista de proyectos (desplegable) ----------
+   Cada proyecto muestra solo su nombre; al pulsarlo se abre la ficha completa.
+   Es un <details name="proyectos"> nativo: sin JS ya funciona y el navegador
+   cierra el anterior al abrir otro. */
 
-@media (min-width: 880px) {
-  .grid { grid-template-columns: repeat(3, 1fr); }
+.projects { border-top: 1px solid var(--line); }
+
+.pitem { border-bottom: 1px solid var(--line); }
+
+/* Transición de apertura y cierre del panel (navegadores con ::details-content) */
+.pitem::details-content {
+  block-size: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: block-size 0.32s cubic-bezier(0.22, 0.61, 0.36, 1),
+              opacity 0.24s ease,
+              content-visibility 0.32s allow-discrete;
 }
+.pitem[open]::details-content { block-size: auto; opacity: 1; }
+
+.pitem-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.15rem 0.25rem;
+  cursor: pointer;
+  list-style: none;
+}
+.pitem-head::-webkit-details-marker { display: none; }
+.pitem-head h3 {
+  font-size: clamp(1.05rem, 0.98rem + 0.6vw, 1.35rem);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.pitem-head:hover h3,
+.pitem[open] .pitem-head h3 { color: var(--oro); }
+
+/* Marca + que se convierte en − al abrir */
+.pitem-mark {
+  position: relative;
+  flex: none;
+  width: 0.8rem;
+  height: 0.8rem;
+}
+.pitem-mark::before,
+.pitem-mark::after {
+  content: "";
+  position: absolute;
+  background: var(--muted);
+  transition: transform 0.22s ease, background-color 0.22s ease;
+}
+.pitem-mark::before { left: 0; right: 0; top: calc(50% - 0.5px); height: 1px; }
+.pitem-mark::after { top: 0; bottom: 0; left: calc(50% - 0.5px); width: 1px; }
+.pitem[open] .pitem-mark::after { transform: scaleY(0); }
+.pitem-head:hover .pitem-mark::before,
+.pitem-head:hover .pitem-mark::after,
+.pitem[open] .pitem-mark::before { background: var(--oro); }
+
+.pitem-body-in { padding-bottom: 1.6rem; }
+.pitem-body-in .tags { margin-bottom: 1rem; }
+.pitem-body-in p { font-size: 0.9375rem; }
+.pitem-body-in p:last-of-type { margin-bottom: 0; }
+.pitem-body-in .project-actions { margin-top: 1.1rem; }
 
 .project { display: flex; flex-direction: column; gap: 0.85rem; }
 .project h3 { word-break: break-word; }

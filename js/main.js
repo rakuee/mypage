@@ -73,4 +73,87 @@
       }
     });
   });
+
+  /* ---- Proyectos: un panel abierto a la vez ----
+     Los navegadores actuales ya lo resuelven con <details name="proyectos">;
+     esto cubre los que todavía no soportan ese atributo. */
+  var listaProyectos = document.querySelector('.projects');
+  if (listaProyectos && !('name' in document.createElement('details'))) {
+    var paneles = listaProyectos.querySelectorAll('details');
+    Array.prototype.forEach.call(paneles, function (panel) {
+      panel.addEventListener('toggle', function () {
+        if (!panel.open) { return; }
+        Array.prototype.forEach.call(paneles, function (otro) {
+          if (otro !== panel) { otro.open = false; }
+        });
+      });
+    });
+  }
+
+  /* ---- Regla graduada del encabezado ----
+     Decorativa (aria-hidden): las marcas las dibuja el CSS y aquí van los
+     números proporcionales y la aguja que marca en qué parte de la página
+     estás. Se agranda al desplazarte y se contrae al detenerte, sin ocultarse. */
+  var regla = document.getElementById('ruler');
+  var numeros = document.getElementById('rulerLabels');
+  var aguja = document.getElementById('rulerNeedle');
+
+  if (regla && numeros && aguja) {
+    var anchoRegla = 0;
+    var agujaPendiente = false;
+    var temporizador = null;
+
+    /* Página que queda por recorrer. 0 = no hay nada que desplazar. */
+    function recorrido() {
+      return Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    }
+
+    /* Proporción recorrida, entre 0 y 1. */
+    function avance() {
+      var total = recorrido();
+      if (total <= 0) { return 0; }
+      var y = window.pageYOffset || document.documentElement.scrollTop || 0;
+      return Math.min(1, Math.max(0, y / total));
+    }
+
+    /* Números cada 10 %; en pantallas angostas cada 20 % para que no se encimen. */
+    function dibujarNumeros() {
+      var ancho = regla.clientWidth || window.innerWidth;
+      if (ancho === anchoRegla) { return; }
+      anchoRegla = ancho;
+      var paso = ancho < 560 ? 20 : 10;
+      var html = '';
+      for (var p = 0; p <= 100; p += paso) {
+        /* En los extremos el número se alinea y crece hacia adentro para no cortarse. */
+        var ajuste = p === 0 ? '0' : (p === 100 ? '-100%' : '-50%');
+        var origen = p === 0 ? 'bottom left' : (p === 100 ? 'bottom right' : 'bottom center');
+        html += '<span style="left:' + p + '%;--tx:' + ajuste + ';--to:' + origen + '">' + p + '</span>';
+      }
+      numeros.innerHTML = html;
+    }
+
+    function dibujarAguja() {
+      agujaPendiente = false;
+      aguja.style.left = (avance() * 100).toFixed(2) + '%';
+      aguja.hidden = recorrido() <= 0;
+    }
+
+    function alDesplazar() {
+      regla.classList.add('is-moving');
+      if (!agujaPendiente) {
+        agujaPendiente = true;
+        window.requestAnimationFrame(dibujarAguja);
+      }
+      window.clearTimeout(temporizador);
+      temporizador = window.setTimeout(function () {
+        regla.classList.remove('is-moving');
+      }, 200);
+    }
+
+    dibujarNumeros();
+    dibujarAguja();
+    window.addEventListener('scroll', alDesplazar, { passive: true });
+    window.addEventListener('resize', function () { dibujarNumeros(); dibujarAguja(); });
+    window.addEventListener('load', dibujarAguja);
+  }
 }());
