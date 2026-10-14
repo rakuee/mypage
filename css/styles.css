@@ -15,8 +15,6 @@
   --oro: #c8a45c;    /* oro UNAM, solo como acento */
   --radius: 12px;
   --wrap: 1040px;
-  /* Ancho de la regla graduada lateral: se reserva con el padding derecho de body */
-  --ruler-w: 1.75rem;
   /* Grotesca cuadrada del sistema: Bahnschrift (tipo DIN) en Windows,
      Franklin Gothic si no, y grotescas neutras en macOS y Linux. */
   --sans: "Bahnschrift", "Franklin Gothic Medium", "Franklin Gothic Book",
@@ -35,7 +33,6 @@ html {
 
 body {
   margin: 0;
-  padding-right: var(--ruler-w);
   background: var(--bg);
   color: var(--text);
   font-family: var(--sans);
@@ -94,22 +91,26 @@ strong { font-weight: 650; }
 .section { padding-block: clamp(4rem, 3rem + 6vw, 8rem); scroll-margin-top: 5rem; }
 
 /* Portada: un poco más de aire y, de fondo, el calendario del sol.
-   El velo negro (78-94 %) deja el texto legible sobre los brillos de la piedra
-   —blanco 18:1, oro 7.8:1— y al final se funde con el negro de la sección
-   siguiente. La imagen está recortada a su zona central por background-size.
+   El velo negro deja el texto legible sobre los brillos de la piedra —blanco
+   18:1, oro 7.8:1— y a partir de la mitad va cerrando hasta negro puro, de modo
+   que el fondo se convierte en negro justo al llegar a "Estudiante".
+   La imagen está recortada a su zona central por background-size.
    La ruta del url() es relativa a ESTE archivo (css/), no al HTML: de ahí el
    ../ para llegar a assets/, y las comillas porque el nombre lleva espacios. */
 .hero {
   padding-block: clamp(4.5rem, 3rem + 8vw, 9rem);
   background-color: var(--bg);
   background-image:
-    linear-gradient(180deg, rgba(0, 0, 0, 0.78) 0%, rgba(0, 0, 0, 0.8) 50%, rgba(0, 0, 0, 0.94) 100%),
+    linear-gradient(180deg,
+      rgba(0, 0, 0, 0.78) 0%,
+      rgba(0, 0, 0, 0.8) 45%,
+      rgba(0, 0, 0, 0.93) 80%,
+      #000 100%),
     url("../assets/fondo del calendario del sol.jpg");
   background-size: cover, cover;
   background-position: center, center;
   background-repeat: no-repeat, no-repeat;
 }
-.section + .section { border-top: 1px solid var(--line); }
 .section-sub { margin-top: 0.5rem; margin-bottom: 2.5rem; }
 
 .site-header {
@@ -129,82 +130,70 @@ strong { font-weight: 650; }
   min-height: 4rem;
 }
 
-/* ---------- Regla graduada lateral derecha ----------
-   Decorativa (aria-hidden en el HTML) y fija al borde derecho de la ventana.
-   Las marcas son dos gradientes repetidos y los números los escribe js/main.js.
-   Al desplazarte se agranda; al detenerte se contrae, pero nunca desaparece.
-   Mide siempre lo mismo para no alterar la página al hacer scroll, y su ancho
-   está reservado con el padding derecho de body, así que nunca tapa contenido. */
-
-.ruler {
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: var(--ruler-w);
-  z-index: 30;
-  overflow: hidden;
-  border-left: 1px solid var(--line);
+/* El nombre de la portada, mientras el JS lo lleva a la esquina:
+   se escala desde su esquina superior izquierda y viaja por encima del
+   encabezado (z-index mayor que el suyo, que es 20). */
+.hero h1 {
+  position: relative;
+  z-index: 25;
+  transform-origin: top left;
+  will-change: transform;
 }
 
-.ruler-ticks {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 6px;
-  opacity: 0.7;
-  /* Marcas menores cada 5 % y mayores cada 10 % */
+/* Mientras el nombre está acoplado en la esquina, el del encabezado se oculta
+   para no duplicarlo. */
+.brand-name { transition: opacity 0.25s ease; }
+body.marca-acoplada .brand-name { opacity: 0; }
+
+/* ---------- Difuminación entre secciones ----------
+   En lugar de la línea dura de 1 px, cada sección que sigue a otra abre con un
+   halo que baja desde su borde superior y con una línea que se desvanece hacia
+   los extremos: así el paso de una sección a la siguiente se difumina.
+   La unión con la portada es la excepción: ahí el fondo ya se convierte en
+   negro, así que no lleva halo ni línea. */
+.section + .section {
+  border-top: 0;
   background-image:
-    repeating-linear-gradient(to bottom, var(--muted) 0 1px, transparent 1px 10%),
-    repeating-linear-gradient(to bottom, var(--line-strong) 0 1px, transparent 1px 5%);
-  transition: width 0.35s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.35s ease;
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 9rem),
+    linear-gradient(90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.17) 28%,
+      rgba(255, 255, 255, 0.17) 72%,
+      rgba(255, 255, 255, 0) 100%);
+  background-repeat: no-repeat;
+  background-size: 100% 100%, 100% 1px;
+  background-position: top left, top center;
+}
+.hero + .section { background-image: none; }
+
+/* Y al desplazarte, la sección entra difuminada y va enfocando.
+   Sólo en navegadores con animaciones ligadas al scroll (animation-timeline);
+   en el resto se ve igual, sin el efecto. La portada queda fuera: es lo primero
+   que se ve y no conviene que nazca desenfocada. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .section:not(.hero) > .wrap {
+      animation-name: enfocar;
+      animation-duration: auto;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: view();
+      animation-range: entry 8% entry 60%;
+    }
+  }
 }
 
-.ruler.is-moving .ruler-ticks { width: 11px; opacity: 1; }
-
-.ruler-labels { position: absolute; inset: 0; }
-
-.ruler-labels span {
-  position: absolute;
-  right: 0.3rem;
-  /* El número gira con la regla: se lee de arriba hacia abajo */
-  writing-mode: vertical-rl;
-  font-family: var(--mono);
-  font-size: 0.5625rem;
-  font-variant-numeric: tabular-nums;
-  color: var(--muted);
-  opacity: 0.38;
-  transform: translateY(var(--ty, -50%)) scale(0.9);
-  transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1), color 0.3s ease;
-}
-
-.ruler.is-moving .ruler-labels span {
-  opacity: 0.95;
-  color: var(--text);
-  transform: translateY(var(--ty, -50%)) scale(1.2);
-}
-
-.ruler-needle {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 2px;
-  margin-top: -1px;
-  background: var(--oro);
-  box-shadow: 0 0 8px rgba(200, 164, 92, 0.55);
-  transition: height 0.3s ease, margin-top 0.3s ease;
-}
-.ruler.is-moving .ruler-needle { height: 3px; margin-top: -1.5px; }
-.ruler-needle[hidden] { display: none; }
-
-/* En pantallas angostas la regla se adelgaza para no robar ancho al contenido */
-@media (max-width: 560px) {
-  :root { --ruler-w: 1.5rem; }
-  .ruler-ticks { width: 5px; }
-  .ruler.is-moving .ruler-ticks { width: 9px; }
-  .ruler-labels span { right: 0.2rem; }
+@keyframes enfocar {
+  from {
+    opacity: 0.5;
+    filter: blur(3px);
+    transform: translateY(0.8rem);
+  }
+  to {
+    opacity: 1;
+    filter: none;
+    transform: none;
+  }
 }
 
 .brand {
@@ -280,44 +269,39 @@ strong { font-weight: 650; }
 }
 
 /* ---------- Lista de proyectos (desplegable) ----------
-   Cada proyecto muestra solo su nombre; al pulsarlo se abre la ficha completa.
-   Es un <details name="proyectos"> nativo: sin JS ya funciona y el navegador
-   cierra el anterior al abrir otro. */
+   Cada proyecto muestra solo su nombre; al pulsarlo se abre su ficha en una
+   ventana modal (ver .modal más abajo y js/main.js). */
 
 .projects { border-top: 1px solid var(--line); }
 
 .pitem { border-bottom: 1px solid var(--line); }
 
-/* Transición de apertura y cierre del panel (navegadores con ::details-content) */
-.pitem::details-content {
-  block-size: 0;
-  overflow: hidden;
-  opacity: 0;
-  transition: block-size 0.32s cubic-bezier(0.22, 0.61, 0.36, 1),
-              opacity 0.24s ease,
-              content-visibility 0.32s allow-discrete;
+.pitem h3 {
+  margin: 0;
+  font-size: clamp(1.05rem, 0.98rem + 0.6vw, 1.35rem);
+  min-width: 0;
 }
-.pitem[open]::details-content { block-size: auto; opacity: 1; }
 
 .pitem-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+  width: 100%;
   padding: 1.15rem 0.25rem;
-  cursor: pointer;
-  list-style: none;
-}
-.pitem-head::-webkit-details-marker { display: none; }
-.pitem-head h3 {
-  font-size: clamp(1.05rem, 0.98rem + 0.6vw, 1.35rem);
-  min-width: 0;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-align: left;
   overflow-wrap: anywhere;
+  cursor: pointer;
+  transition: color 0.18s ease;
 }
-.pitem-head:hover h3,
-.pitem[open] .pitem-head h3 { color: var(--oro); }
+.pitem-head:hover { color: var(--oro); }
 
-/* Marca + que se convierte en − al abrir */
+/* Marca +: indica que hay más información */
 .pitem-mark {
   position: relative;
   flex: none;
@@ -333,23 +317,58 @@ strong { font-weight: 650; }
 }
 .pitem-mark::before { left: 0; right: 0; top: calc(50% - 0.5px); height: 1px; }
 .pitem-mark::after { top: 0; bottom: 0; left: calc(50% - 0.5px); width: 1px; }
-.pitem[open] .pitem-mark::after { transform: scaleY(0); }
 .pitem-head:hover .pitem-mark::before,
-.pitem-head:hover .pitem-mark::after,
-.pitem[open] .pitem-mark::before { background: var(--oro); }
+.pitem-head:hover .pitem-mark::after { background: var(--oro); }
+.pitem-head:hover .pitem-mark { transform: rotate(90deg); }
 
-.pitem-body-in { padding-bottom: 1.6rem; }
-.pitem-body-in .tags { margin-bottom: 1rem; }
-.pitem-body-in p { font-size: 0.9375rem; }
-.pitem-body-in p:last-of-type { margin-bottom: 0; }
-.pitem-body-in .project-actions { margin-top: 1.1rem; }
+/* ---------- Ventana modal de la ficha ---------- */
 
-.project { display: flex; flex-direction: column; gap: 0.85rem; }
-.project h3 { word-break: break-word; }
-.project p { font-size: 0.9375rem; }
-.project .project-actions { margin-top: auto; }
+.modal {
+  width: min(640px, 92vw);
+  max-height: min(84vh, 46rem);
+  overflow: auto;
+  padding: clamp(1.25rem, 3vw, 1.75rem);
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.65);
+}
 
-.project-head { display: flex; flex-direction: column; gap: 0.6rem; }
+.modal::backdrop {
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(3px);
+}
+
+.modal-cabeza {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.9rem;
+}
+
+.modal-cerrar {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  background: transparent;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  color: var(--muted);
+  cursor: pointer;
+  line-height: 1;
+  transition: color 0.18s ease, border-color 0.18s ease;
+}
+.modal-cerrar:hover { color: var(--text); border-color: var(--text); }
+
+.modal-titulo { margin-bottom: 0.75rem; overflow-wrap: anywhere; }
+.modal .tags { margin-bottom: 1rem; }
+.modal p { font-size: 0.9375rem; }
+.modal p:last-of-type { margin-bottom: 0; }
+.modal .project-actions { margin-top: 1.1rem; }
 
 .tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0; }
 
@@ -546,8 +565,10 @@ strong { font-weight: 650; }
 
 @media print {
   :root { --bg: #fff; --text: #000; --muted: #444; --line: #ccc; }
-  body { background: #fff; color: #000; padding-right: 0; }
-  .site-header, .btn-row, .copy, .skip-link, .ruler { display: none; }
+  body { background: #fff; color: #000; }
+  .site-header, .btn-row, .copy, .skip-link { display: none; }
   .hero { background-image: none; }
+  .section + .section { background-image: none; }
+  .modal { display: none; }
   .card { break-inside: avoid; }
 }

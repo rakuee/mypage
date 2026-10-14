@@ -22,6 +22,15 @@
      y reemplaza el href de la línea siguiente por: assets/img/favicon.svg -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23000'/%3E%3Ctext x='32' y='45' font-family='Helvetica,Arial,sans-serif' font-size='38' font-weight='700' fill='%23fff' text-anchor='middle'%3ET%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="css/styles.css">
+
+<!-- Sin JavaScript no se pueden abrir las ventanas modales de los proyectos:
+     se muestran sus fichas como bloques, para que el contenido y los enlaces
+     sigan siendo accesibles. -->
+<noscript><style>
+  dialog.modal { display: block; position: static; width: auto; max-width: none; max-height: none; margin: 0 0 1.5rem; overflow: visible; }
+  dialog.modal::backdrop { display: none; }
+  .modal-cerrar { display: none; }
+</style></noscript>
 </head>
 <body>
 <a class="skip-link" href="#inicio">Saltar al contenido</a>
@@ -43,20 +52,11 @@
       <a href="#inicio">Inicio</a>
       <a href="#estudiante">Estudiante</a>
       <a href="#proyectos">Proyectos</a>
-      <a href="pokedex/">Pokédex</a>
+      <a href="#proyectos-web">Proyectos web</a>
       <a href="#contacto">Contacto</a>
     </nav>
   </div>
 </header>
-
-<!-- Regla graduada vertical, fija al lado derecho: marca en qué parte de la
-     página estás. Decorativa. El ancho se reserva con el padding derecho de body
-     y los números los escribe js/main.js. -->
-<div class="ruler" id="ruler" aria-hidden="true">
-  <div class="ruler-ticks"></div>
-  <div class="ruler-labels" id="rulerLabels"></div>
-  <div class="ruler-needle" id="rulerNeedle" hidden></div>
-</div>
 
 <main id="inicio">
 
@@ -132,129 +132,170 @@
   <section class="section" id="proyectos" aria-labelledby="proyectos-title">
     <div class="wrap">
       <h2 id="proyectos-title">Proyectos en GitHub</h2>
-      <p class="section-sub muted">Tres repositorios públicos. Pulsa un nombre para ver de qué trata y abrir el código.</p>
+      <p class="section-sub muted">Tres repositorios públicos. Pulsa un nombre para abrir su ficha.</p>
 
       <div class="projects">
 
-        <details class="pitem" name="proyectos">
-          <summary class="pitem-head">
-            <h3>infoEscuelasMX</h3>
-            <span class="pitem-mark" aria-hidden="true"></span>
-          </summary>
-          <div class="pitem-body">
-            <div class="pitem-body-in">
-              <p class="tags"><span class="tag">Python</span><span class="tag">Django</span><span class="tag">Leaflet</span><span class="tag">PostgreSQL</span></p>
-              <p>
-                Buscador de escuelas cerca de ti. Pides un nivel educativo (preescolar, primaria
-                o secundaria) y cuántos resultados quieres; la plataforma toma tu ubicación,
-                calcula distancias por proximidad radial y devuelve una lista con nombre y
-                dirección, más un mapa interactivo con marcadores.
-              </p>
-              <p class="muted small">
-                Proyecto colaborativo de estudiantes de la ENES Morelia, construido sobre el catálogo
-                de Centros de Trabajo de la SEP. Formé parte del equipo como responsable del proyecto.
-              </p>
-              <div class="project-actions">
-                <a class="link-arrow" href="https://github.com/Narhada/infoEscuelasMX" target="_blank" rel="noopener noreferrer">
-                  Ver repositorio en GitHub <span aria-hidden="true">↗</span>
-                </a>
-                <button class="copy" type="button" data-copy="git clone https://github.com/Narhada/infoEscuelasMX.git">Copiar comando</button>
-              </div>
-            </div>
-          </div>
-        </details>
+        <article class="pitem">
+          <h3>
+            <button class="pitem-head" type="button" data-abre="ficha-escuelas" aria-haspopup="dialog">
+              infoEscuelasMX
+              <span class="pitem-mark" aria-hidden="true"></span>
+            </button>
+          </h3>
+        </article>
 
-        <details class="pitem" name="proyectos">
-          <summary class="pitem-head">
-            <h3>Modeling_of_Social_Influence</h3>
-            <span class="pitem-mark" aria-hidden="true"></span>
-          </summary>
-          <div class="pitem-body">
-            <div class="pitem-body-in">
-              <p class="tags"><span class="tag">Python</span><span class="tag">Simulación</span><span class="tag">Agentes</span><span class="tag">GPL-3.0</span></p>
-              <p>
-                ¿Cómo cambia lo que piensa una persona según su entorno? Cada individuo es un
-                agente con una opinión y un ambiente formado por familia, amistades, vecinos,
-                trabajo, medios y redes sociales. Los agentes interactúan y actualizan su opinión
-                por exposición, conformidad, persuasión, identidad y algoritmos.
-              </p>
-              <p class="muted small">
-                El objetivo es observar cómo emergen patrones colectivos: consenso, polarización
-                y cámaras de eco. Código bajo licencia GNU/GPL v3.0.
-              </p>
-              <div class="project-actions">
-                <a class="link-arrow" href="https://github.com/rakuee/Modeling_of_Social_Influence" target="_blank" rel="noopener noreferrer">
-                  Ver repositorio en GitHub <span aria-hidden="true">↗</span>
-                </a>
-                <button class="copy" type="button" data-copy="git clone https://github.com/rakuee/Modeling_of_Social_Influence.git">Copiar comando</button>
-              </div>
-            </div>
-          </div>
-        </details>
+        <article class="pitem">
+          <h3>
+            <button class="pitem-head" type="button" data-abre="ficha-modelado" aria-haspopup="dialog">
+              Modeling_of_Social_Influence
+              <span class="pitem-mark" aria-hidden="true"></span>
+            </button>
+          </h3>
+        </article>
 
-        <details class="pitem" name="proyectos">
-          <summary class="pitem-head">
-            <h3>mintic-base</h3>
-            <span class="pitem-mark" aria-hidden="true"></span>
-          </summary>
-          <div class="pitem-body">
-            <div class="pitem-body-in">
-              <p class="tags"><span class="tag">Python</span><span class="tag">NumPy</span><span class="tag">Minería de datos</span><span class="tag">Docencia</span></p>
-              <p>
-                Repositorio plantilla del curso de Minería de Datos: cada subpaquete
-                (<code>eda</code>, <code>ensemble</code>, <code>kmeans</code>, <code>dbscan</code>,
-                <code>apriori</code>, <code>pca</code>) se desarrolla a mano, para entender el
-                algoritmo por dentro y no solo usarlo.
-              </p>
-              <p class="muted small">
-                Regla del curso: la única librería numérica permitida para el cálculo es NumPy.
-                <code>pandas</code> solo para cargar datos y <code>matplotlib</code> para visualizar.
-              </p>
-              <div class="project-actions">
-                <a class="link-arrow" href="https://github.com/rakuee/mintic-base" target="_blank" rel="noopener noreferrer">
-                  Ver repositorio en GitHub <span aria-hidden="true">↗</span>
-                </a>
-                <button class="copy" type="button" data-copy="git clone https://github.com/rakuee/mintic-base.git">Copiar comando</button>
-              </div>
-            </div>
-          </div>
-        </details>
+        <article class="pitem">
+          <h3>
+            <button class="pitem-head" type="button" data-abre="ficha-mintic" aria-haspopup="dialog">
+              mintic-base
+              <span class="pitem-mark" aria-hidden="true"></span>
+            </button>
+          </h3>
+        </article>
 
       </div>
+
+      <!-- Fichas de los repos: se abren en ventana modal (js/main.js).
+           Si el JS no carga, el <noscript> del <head> las muestra como bloques. -->
+      <dialog class="modal" id="ficha-escuelas" aria-labelledby="ficha-escuelas-titulo">
+        <div class="modal-cabeza">
+          <span class="badge">Repositorio</span>
+          <button class="modal-cerrar" type="button" data-cierra aria-label="Cerrar">✕</button>
+        </div>
+        <h3 class="modal-titulo" id="ficha-escuelas-titulo">infoEscuelasMX</h3>
+        <p class="tags"><span class="tag">Python</span><span class="tag">Django</span><span class="tag">Leaflet</span><span class="tag">PostgreSQL</span></p>
+        <p>
+          Buscador de escuelas cerca de ti. Pides un nivel educativo (preescolar, primaria
+          o secundaria) y cuántos resultados quieres; la plataforma toma tu ubicación,
+          calcula distancias por proximidad radial y devuelve una lista con nombre y
+          dirección, más un mapa interactivo con marcadores.
+        </p>
+        <p class="muted small">
+          Proyecto colaborativo de estudiantes de la ENES Morelia, construido sobre el catálogo
+          de Centros de Trabajo de la SEP. Formé parte del equipo como responsable del proyecto.
+        </p>
+        <div class="project-actions">
+          <a class="link-arrow" href="https://github.com/Narhada/infoEscuelasMX" target="_blank" rel="noopener noreferrer">
+            Ver repositorio en GitHub <span aria-hidden="true">↗</span>
+          </a>
+          <button class="copy" type="button" data-copy="git clone https://github.com/Narhada/infoEscuelasMX.git">Copiar comando</button>
+        </div>
+      </dialog>
+
+      <dialog class="modal" id="ficha-modelado" aria-labelledby="ficha-modelado-titulo">
+        <div class="modal-cabeza">
+          <span class="badge">Repositorio</span>
+          <button class="modal-cerrar" type="button" data-cierra aria-label="Cerrar">✕</button>
+        </div>
+        <h3 class="modal-titulo" id="ficha-modelado-titulo">Modeling_of_Social_Influence</h3>
+        <p class="tags"><span class="tag">Python</span><span class="tag">Simulación</span><span class="tag">Agentes</span><span class="tag">GPL-3.0</span></p>
+        <p>
+          ¿Cómo cambia lo que piensa una persona según su entorno? Cada individuo es un
+          agente con una opinión y un ambiente formado por familia, amistades, vecinos,
+          trabajo, medios y redes sociales. Los agentes interactúan y actualizan su opinión
+          por exposición, conformidad, persuasión, identidad y algoritmos.
+        </p>
+        <p class="muted small">
+          El objetivo es observar cómo emergen patrones colectivos: consenso, polarización
+          y cámaras de eco. Código bajo licencia GNU/GPL v3.0.
+        </p>
+        <div class="project-actions">
+          <a class="link-arrow" href="https://github.com/rakuee/Modeling_of_Social_Influence" target="_blank" rel="noopener noreferrer">
+            Ver repositorio en GitHub <span aria-hidden="true">↗</span>
+          </a>
+          <button class="copy" type="button" data-copy="git clone https://github.com/rakuee/Modeling_of_Social_Influence.git">Copiar comando</button>
+        </div>
+      </dialog>
+
+      <dialog class="modal" id="ficha-mintic" aria-labelledby="ficha-mintic-titulo">
+        <div class="modal-cabeza">
+          <span class="badge">Repositorio</span>
+          <button class="modal-cerrar" type="button" data-cierra aria-label="Cerrar">✕</button>
+        </div>
+        <h3 class="modal-titulo" id="ficha-mintic-titulo">mintic-base</h3>
+        <p class="tags"><span class="tag">Python</span><span class="tag">NumPy</span><span class="tag">Minería de datos</span><span class="tag">Docencia</span></p>
+        <p>
+          Repositorio plantilla del curso de Minería de Datos: cada subpaquete
+          (<code>eda</code>, <code>ensemble</code>, <code>kmeans</code>, <code>dbscan</code>,
+          <code>apriori</code>, <code>pca</code>) se desarrolla a mano, para entender el
+          algoritmo por dentro y no solo usarlo.
+        </p>
+        <p class="muted small">
+          Regla del curso: la única librería numérica permitida para el cálculo es NumPy.
+          <code>pandas</code> solo para cargar datos y <code>matplotlib</code> para visualizar.
+        </p>
+        <div class="project-actions">
+          <a class="link-arrow" href="https://github.com/rakuee/mintic-base" target="_blank" rel="noopener noreferrer">
+            Ver repositorio en GitHub <span aria-hidden="true">↗</span>
+          </a>
+          <button class="copy" type="button" data-copy="git clone https://github.com/rakuee/mintic-base.git">Copiar comando</button>
+        </div>
+      </dialog>
 
     </div>
   </section>
 
-  <!-- ============ POKÉDEX ============ -->
-  <section class="section" id="pokedex" aria-labelledby="pokedex-title">
+  <!-- ============ PROYECTOS WEB ============ -->
+  <!-- Grupo pensado para crecer: cada proyecto web es un <article class="pitem"> con su
+       botón (data-abre="ficha-...") y su <dialog class="modal"> con la ficha. Para añadir
+       otro, copia un artículo y su diálogo y enlázalos con el mismo id. -->
+  <section class="section" id="proyectos-web" aria-labelledby="proyectos-web-title">
     <div class="wrap">
-      <h2 id="pokedex-title">Pokédex</h2>
+      <h2 id="proyectos-web-title">Proyectos web</h2>
       <p class="section-sub muted">
-        <span class="badge">Aplicación web</span>
-        Buscador, filtros por tipo y detalle sobre los 1351 Pokémon de PokeAPI.
+        <span class="badge">Navegables</span>
+        Aplicaciones que puedes abrir y usar aquí mismo. Pulsa una para ver su ficha.
       </p>
 
-      <article class="card project">
-        <header class="project-head">
-          <h3>Pokédex interactiva</h3>
-          <p class="tags"><span class="tag">JavaScript</span><span class="tag">PokeAPI</span><span class="tag">CSS Grid</span><span class="tag">Sin dependencias</span></p>
-        </header>
+      <div class="projects">
+
+        <article class="pitem">
+          <h3>
+            <button class="pitem-head" type="button" data-abre="ficha-pokedex" aria-haspopup="dialog">
+              Pokédex
+              <span class="pitem-mark" aria-hidden="true"></span>
+            </button>
+          </h3>
+        </article>
+
+        <!-- Próximo proyecto web: copia el <article> de arriba y su <dialog>. -->
+
+      </div>
+
+      <dialog class="modal" id="ficha-pokedex" aria-labelledby="ficha-pokedex-titulo">
+        <div class="modal-cabeza">
+          <span class="badge">Aplicación web</span>
+          <button class="modal-cerrar" type="button" data-cierra aria-label="Cerrar">✕</button>
+        </div>
+        <h3 class="modal-titulo" id="ficha-pokedex-titulo">Pokédex</h3>
+        <p class="tags"><span class="tag">JavaScript</span><span class="tag">PokeAPI</span><span class="tag">CSS Grid</span><span class="tag">Sin dependencias</span></p>
         <p>
           Buscador por nombre o número, filtro por tipo, paginación y una ventana de detalle
           con imagen oficial, tipos, estadísticas base, evoluciones y ventajas y debilidades
-          de cada tipo. El catálogo completo se carga desde PokeAPI y se guarda en caché local
-          para que moverse entre páginas sea inmediato.
+          de cada tipo. El catálogo completo (1351 Pokémon) se carga desde PokeAPI y se guarda
+          en caché local para que moverse entre páginas sea inmediato.
         </p>
         <p class="muted small">
-          Aplicación propia de este sitio, no un repositorio: vive en su propia ruta
-          y funciona como página independiente.
+          Página propia de este sitio, no un repositorio: se abre en su propia ruta y funciona
+          como aplicación independiente.
         </p>
         <div class="project-actions">
           <a class="link-arrow" href="pokedex/">
             Abrir la Pokédex <span aria-hidden="true">→</span>
           </a>
         </div>
-      </article>
+      </dialog>
+
     </div>
   </section>
 
