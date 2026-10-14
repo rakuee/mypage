@@ -85,25 +85,13 @@
       <h2 id="estudiante-title">Estudiante</h2>
 
       <article class="card student-card">
-        <!-- ===================================================================
-             TODO_LOGO_UNAM
-             Coloca el escudo de la UNAM en:  assets/img/unam-escudo.png
-             (si es .svg, .jpg o .webp, cambia la extensión en el src de abajo).
-             Mientras el archivo no exista, se muestra un escudo de respaldo.
-             =================================================================== -->
         <div class="student-logo">
-          <div class="logo-fallback" id="logoFallback" hidden aria-hidden="true">
-            <svg viewBox="0 0 100 112" role="img" class="logo-fallback-svg">
-              <path d="M50 3 L96 19 V62 c0 25-21 40-46 47C25 102 4 87 4 62V19Z" fill="#002b5c" stroke="#c8a45c" stroke-width="3"/>
-              <path d="M50 12 L88 25 V62 c0 20-17 33-38 39C29 95 12 82 12 62V25Z" fill="none" stroke="#c8a45c" stroke-width="1.5" opacity=".7"/>
-              <text x="50" y="66" text-anchor="middle" font-family="Helvetica,Arial,sans-serif" font-size="22" font-weight="700" fill="#ffffff">UNAM</text>
-              <text x="50" y="84" text-anchor="middle" font-family="Helvetica,Arial,sans-serif" font-size="9" fill="#c8a45c">por mi raza hablará el espíritu</text>
-            </svg>
-          </div>
-          <img class="logo-img" id="logoUNAM" src="assets/img/unam-escudo.png"
+          <!-- Escudo de la UNAM: assets/unamlogo.png (PNG cuadrada con margen
+               transparente). La placa clara que lo hace legible en el tema oscuro
+               está definida en .logo-img, en css/styles.css. -->
+          <img class="logo-img" id="logoUNAM" src="assets/unamlogo.png"
                alt="Escudo de la Universidad Nacional Autónoma de México"
-               width="150" height="168" loading="lazy" decoding="async"
-               onerror="(function(i){var f=function(){var fb=document.getElementById('logoFallback');if(fb){fb.hidden=false;}i.style.display='none';};if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',f);}else{f();}})(this)">
+               width="168" height="168" loading="lazy" decoding="async">
         </div>
 
         <div class="student-body">

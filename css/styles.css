@@ -250,15 +250,17 @@ strong { font-weight: 650; }
 
 .student-logo { display: grid; place-items: center; }
 
+/* El escudo de la UNAM es azul institucional sobre transparencia: en el tema
+   oscuro va sobre una placa clara para que se lea sin alterar sus colores. */
 .logo-img {
-  width: min(150px, 45vw);
+  width: min(168px, 50vw);
   height: auto;
   display: block;
-  filter: drop-shadow(0 0 0.5rem rgba(200, 164, 92, 0.12));
+  background: #f5f5f2;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
 }
-
-.logo-fallback,
-.logo-fallback-svg { width: min(150px, 45vw); height: auto; display: block; }
 
 .student-body h3 { margin-bottom: 0.35rem; }
 .student-place { color: var(--oro); font-size: 0.9375rem; margin-bottom: 1rem; }

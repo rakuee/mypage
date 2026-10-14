@@ -1,16 +1,17 @@
-assets/img — archivos que debes colocar aquí
-============================================
+assets — imágenes del sitio
+===========================
 
-El HTML ya apunta a estas rutas. No hay respaldo remoto a propósito:
-mientras el archivo no exista se muestra un respaldo local, y todo
-funciona sin romperse.
-
-1) Escudo de la UNAM  ->  unam-escudo.png
-   - Formato: PNG con fondo transparente (sugerido). También sirve .svg, .jpg, .webp.
-   - Tamaño: ~600 x 672 px (o cualquier múltiplo, proporción 1024:1151).
-   - Si usas otra extensión, edita la línea marcada "TODO_LOGO_UNAM" en index.html
-     (busca: assets/img/unam-escudo.png).
-   - La sección ya reserva 150 x 168 px; con "height:auto" el CSS respeta la proporción.
+1) Escudo de la UNAM  ->  YA COLOCADO
+   - Archivo en uso:  assets/unamlogo.png  (320 x 320 px, PNG con transparencia).
+   - index.html ya apunta a esa ruta: no hay respaldo ni logo temporal; si el
+     archivo falta, el navegador muestra la imagen rota.
+   - El escudo es azul institucional (#003070) sobre fondo transparente. En el
+     tema oscuro del sitio va sobre una placa clara (#f5f5f2) definida en la
+     regla .logo-img de css/styles.css, para que se lea sin alterar sus colores.
+   - Si cambias el archivo, respeta la proporción cuadrada y actualiza (si hace
+     falta) el width/height del <img> en la sección "Estudiante" de index.html.
+   - Carpeta assets/img/: aquí van las imágenes auxiliares. Hoy solo contiene
+     este archivo de notas.
 
 2) Favicon (opcional)  ->  favicon.svg
    - 64 x 64 px, cuadrado.
@@ -18,6 +19,8 @@ funciona sin romperse.
        <link rel="icon" ... href="data:image/svg+xml,...">
      por:
        <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+   - Alternativa sin crear archivos: usar el escudo que ya existe con
+       <link rel="icon" type="image/png" href="assets/unamlogo.png">
 
 Notas
 -----
