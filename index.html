@@ -46,14 +46,16 @@
       <a href="#contacto">Contacto</a>
     </nav>
   </div>
-
-  <!-- Regla graduada: marca en qué parte de la página estás. Decorativa. -->
-  <div class="ruler" id="ruler" aria-hidden="true">
-    <div class="ruler-ticks"></div>
-    <div class="ruler-labels" id="rulerLabels"></div>
-    <div class="ruler-needle" id="rulerNeedle" hidden></div>
-  </div>
 </header>
+
+<!-- Regla graduada vertical, fija al lado derecho: marca en qué parte de la
+     página estás. Decorativa. El ancho se reserva con el padding derecho de body
+     y los números los escribe js/main.js. -->
+<div class="ruler" id="ruler" aria-hidden="true">
+  <div class="ruler-ticks"></div>
+  <div class="ruler-labels" id="rulerLabels"></div>
+  <div class="ruler-needle" id="rulerNeedle" hidden></div>
+</div>
 
 <main id="inicio">
 

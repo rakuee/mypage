@@ -15,6 +15,8 @@
   --oro: #c8a45c;    /* oro UNAM, solo como acento */
   --radius: 12px;
   --wrap: 1040px;
+  /* Ancho de la regla graduada lateral: se reserva con el padding derecho de body */
+  --ruler-w: 1.75rem;
   /* Grotesca cuadrada del sistema: Bahnschrift (tipo DIN) en Windows,
      Franklin Gothic si no, y grotescas neutras en macOS y Linux. */
   --sans: "Bahnschrift", "Franklin Gothic Medium", "Franklin Gothic Book",
@@ -33,6 +35,7 @@ html {
 
 body {
   margin: 0;
+  padding-right: var(--ruler-w);
   background: var(--bg);
   color: var(--text);
   font-family: var(--sans);
@@ -88,7 +91,7 @@ strong { font-weight: 650; }
 
 /* ---------- Layout ---------- */
 
-.section { padding-block: clamp(4rem, 3rem + 6vw, 8rem); scroll-margin-top: 6rem; }
+.section { padding-block: clamp(4rem, 3rem + 6vw, 8rem); scroll-margin-top: 5rem; }
 
 /* La portada respira un poco más que el resto de secciones */
 .hero { padding-block: clamp(4.5rem, 3rem + 8vw, 9rem); }
@@ -112,68 +115,83 @@ strong { font-weight: 650; }
   min-height: 4rem;
 }
 
-/* ---------- Regla graduada del encabezado ----------
-   Decorativa (aria-hidden en el HTML). Las marcas son dos gradientes repetidos
-   y los números los escribe js/main.js. Al desplazarte se agranda; al detenerte
-   se contrae, pero nunca desaparece. La caja mide siempre lo mismo para no
-   alterar la altura del encabezado (y con ella la del documento) al hacer scroll. */
+/* ---------- Regla graduada lateral derecha ----------
+   Decorativa (aria-hidden en el HTML) y fija al borde derecho de la ventana.
+   Las marcas son dos gradientes repetidos y los números los escribe js/main.js.
+   Al desplazarte se agranda; al detenerte se contrae, pero nunca desaparece.
+   Mide siempre lo mismo para no alterar la página al hacer scroll, y su ancho
+   está reservado con el padding derecho de body, así que nunca tapa contenido. */
 
 .ruler {
-  position: relative;
-  height: 1.5rem;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: var(--ruler-w);
+  z-index: 30;
   overflow: hidden;
-  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
 }
 
 .ruler-ticks {
   position: absolute;
-  left: 0;
-  right: 0;
+  top: 0;
   bottom: 0;
-  height: 7px;
+  left: 0;
+  width: 6px;
   opacity: 0.7;
-  transform-origin: bottom center;
   /* Marcas menores cada 5 % y mayores cada 10 % */
   background-image:
-    repeating-linear-gradient(to right, var(--muted) 0 1px, transparent 1px 10%),
-    repeating-linear-gradient(to right, var(--line-strong) 0 1px, transparent 1px 5%);
-  transition: height 0.35s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.35s ease;
+    repeating-linear-gradient(to bottom, var(--muted) 0 1px, transparent 1px 10%),
+    repeating-linear-gradient(to bottom, var(--line-strong) 0 1px, transparent 1px 5%);
+  transition: width 0.35s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.35s ease;
 }
 
-.ruler.is-moving .ruler-ticks { height: 13px; opacity: 1; }
+.ruler.is-moving .ruler-ticks { width: 11px; opacity: 1; }
 
 .ruler-labels { position: absolute; inset: 0; }
 
 .ruler-labels span {
   position: absolute;
-  bottom: 0.3rem;
+  right: 0.3rem;
+  /* El número gira con la regla: se lee de arriba hacia abajo */
+  writing-mode: vertical-rl;
   font-family: var(--mono);
   font-size: 0.5625rem;
   font-variant-numeric: tabular-nums;
   color: var(--muted);
   opacity: 0.38;
-  transform: translateX(var(--tx, -50%)) scale(0.9);
-  transform-origin: var(--to, bottom center);
+  transform: translateY(var(--ty, -50%)) scale(0.9);
   transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1), color 0.3s ease;
 }
 
 .ruler.is-moving .ruler-labels span {
   opacity: 0.95;
   color: var(--text);
-  transform: translateX(var(--tx, -50%)) scale(1.18);
+  transform: translateY(var(--ty, -50%)) scale(1.2);
 }
 
 .ruler-needle {
   position: absolute;
-  top: 0;
-  bottom: 0;
   left: 0;
-  width: 2px;
-  margin-left: -1px;
+  right: 0;
+  top: 0;
+  height: 2px;
+  margin-top: -1px;
   background: var(--oro);
   box-shadow: 0 0 8px rgba(200, 164, 92, 0.55);
+  transition: height 0.3s ease, margin-top 0.3s ease;
 }
+.ruler.is-moving .ruler-needle { height: 3px; margin-top: -1.5px; }
 .ruler-needle[hidden] { display: none; }
+
+/* En pantallas angostas la regla se adelgaza para no robar ancho al contenido */
+@media (max-width: 560px) {
+  :root { --ruler-w: 1.5rem; }
+  .ruler-ticks { width: 5px; }
+  .ruler.is-moving .ruler-ticks { width: 9px; }
+  .ruler-labels span { right: 0.2rem; }
+}
 
 .brand {
   display: inline-flex;
@@ -512,7 +530,7 @@ strong { font-weight: 650; }
 
 @media print {
   :root { --bg: #fff; --text: #000; --muted: #444; --line: #ccc; }
-  body { background: #fff; color: #000; }
-  .site-header, .btn-row, .copy, .skip-link { display: none; }
+  body { background: #fff; color: #000; padding-right: 0; }
+  .site-header, .btn-row, .copy, .skip-link, .ruler { display: none; }
   .card { break-inside: avoid; }
 }

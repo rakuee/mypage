@@ -90,7 +90,7 @@
     });
   }
 
-  /* ---- Regla graduada del encabezado ----
+  /* ---- Regla graduada lateral ----
      Decorativa (aria-hidden): las marcas las dibuja el CSS y aquí van los
      números proporcionales y la aguja que marca en qué parte de la página
      estás. Se agranda al desplazarte y se contrae al detenerte, sin ocultarse. */
@@ -99,7 +99,7 @@
   var aguja = document.getElementById('rulerNeedle');
 
   if (regla && numeros && aguja) {
-    var anchoRegla = 0;
+    var altoRegla = 0;
     var agujaPendiente = false;
     var temporizador = null;
 
@@ -116,25 +116,25 @@
       return Math.min(1, Math.max(0, y / total));
     }
 
-    /* Números cada 10 %; en pantallas angostas cada 20 % para que no se encimen. */
+    /* Números cada 10 % del alto de la ventana; si la pantalla es baja,
+       cada 20 % para que no se encimen. */
     function dibujarNumeros() {
-      var ancho = regla.clientWidth || window.innerWidth;
-      if (ancho === anchoRegla) { return; }
-      anchoRegla = ancho;
-      var paso = ancho < 560 ? 20 : 10;
+      var alto = regla.clientHeight || window.innerHeight;
+      if (alto === altoRegla) { return; }
+      altoRegla = alto;
+      var paso = alto < 520 ? 20 : 10;
       var html = '';
       for (var p = 0; p <= 100; p += paso) {
-        /* En los extremos el número se alinea y crece hacia adentro para no cortarse. */
+        /* En los extremos el número se ancla hacia adentro para no cortarse. */
         var ajuste = p === 0 ? '0' : (p === 100 ? '-100%' : '-50%');
-        var origen = p === 0 ? 'bottom left' : (p === 100 ? 'bottom right' : 'bottom center');
-        html += '<span style="left:' + p + '%;--tx:' + ajuste + ';--to:' + origen + '">' + p + '</span>';
+        html += '<span style="top:' + p + '%;--ty:' + ajuste + '">' + p + '</span>';
       }
       numeros.innerHTML = html;
     }
 
     function dibujarAguja() {
       agujaPendiente = false;
-      aguja.style.left = (avance() * 100).toFixed(2) + '%';
+      aguja.style.top = (avance() * 100).toFixed(2) + '%';
       aguja.hidden = recorrido() <= 0;
     }
 
