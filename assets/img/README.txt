@@ -10,22 +10,46 @@ assets — imágenes del sitio
      regla .logo-img de css/styles.css, para que se lea sin alterar sus colores.
    - Si cambias el archivo, respeta la proporción cuadrada y actualiza (si hace
      falta) el width/height del <img> en la sección "Estudiante" de index.html.
-   - Carpeta assets/img/: aquí van las imágenes auxiliares. Hoy solo contiene
-     este archivo de notas.
 
-2) Favicon (opcional)  ->  favicon.svg
+2) Calendario del sol (marca del encabezado)  ->  YA COLOCADO
+   - Archivo en uso:  assets/calendariodelsol.jpg  (612 x 561 px, 87 KB).
+   - Sustituye a las iniciales "TL" en la regla .brand-mark de css/styles.css:
+     caja de 2 rem con recorte cuadrado (object-fit: cover).
+   - La foto trae fondo negro y la piedra centrada con 45-70 px de margen, así
+     que el recorte cuadrado no le corta los extremos.
+
+3) Fondo del inicio  ->  YA COLOCADO
+   - Archivo en uso:  "assets/fondo del calendario del sol.jpg" (1200 x 480 px,
+     248 KB). Ojo: el nombre lleva espacios, por eso en el CSS va entre comillas:
+       url("assets/fondo del calendario del sol.jpg")
+   - Sólo se usa en la portada (.hero de css/styles.css), no en el resto del
+     sitio.
+   - Encima lleva un velo negro (78 % arriba, 80 % al centro, 94 % abajo) para
+     que el texto blanco y el oro se lean sobre los brillos de la piedra: el
+     contraste medido va de 11.9:1 (blanco) a 4.7:1 (gris) en el peor caso.
+   - Al imprimir se quita (regla .hero dentro de @media print).
+
+4) Favicon (opcional)  ->  favicon.svg
    - 64 x 64 px, cuadrado.
    - Después de guardarlo, en <head> cambia:
        <link rel="icon" ... href="data:image/svg+xml,...">
      por:
        <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
-   - Alternativa sin crear archivos: usar el escudo que ya existe con
+   - Alternativas sin crear archivos: usar el escudo que ya existe con
        <link rel="icon" type="image/png" href="assets/unamlogo.png">
+     o el calendario del sol con
+       <link rel="icon" type="image/jpeg" href="assets/calendariodelsol.jpg">
 
 Notas
 -----
 - Rutas relativas (assets/...), así el sitio funciona igual abierto con file://
   que publicado en tonatiuhliera.com.
+- Pesos a vigilar: entre la marca (87 KB) y el fondo de la portada (248 KB) la
+  primera pantalla carga ~335 KB de imágenes. Si se quiere aligerar, conviene
+  generar copias reducidas (por ejemplo 96 x 96 para la marca y 1200 px de ancho
+  con calidad 80 para el fondo) y apuntar el HTML/CSS a esas copias.
 - El escudo de la UNAM es una insignia institucional: su uso está restringido a
   los casos permitidos por la institución. Úsalo conforme a los lineamientos de
   identidad de la UNAM para sitios de estudiantes.
+- Carpeta assets/img/: aquí van las imágenes auxiliares del sitio; hoy sólo
+  contiene este archivo de notas.

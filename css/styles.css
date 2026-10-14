@@ -93,8 +93,20 @@ strong { font-weight: 650; }
 
 .section { padding-block: clamp(4rem, 3rem + 6vw, 8rem); scroll-margin-top: 5rem; }
 
-/* La portada respira un poco más que el resto de secciones */
-.hero { padding-block: clamp(4.5rem, 3rem + 8vw, 9rem); }
+/* Portada: un poco más de aire y, de fondo, el calendario del sol.
+   El velo negro (78-94 %) deja el texto legible sobre los brillos de la piedra
+   —blanco 18:1, oro 7.8:1— y al final se funde con el negro de la sección
+   siguiente. La imagen está recortada a su zona central por background-size. */
+.hero {
+  padding-block: clamp(4.5rem, 3rem + 8vw, 9rem);
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.78) 0%, rgba(0, 0, 0, 0.8) 50%, rgba(0, 0, 0, 0.94) 100%),
+    url("assets/fondo del calendario del sol.jpg");
+  background-size: cover, cover;
+  background-position: center, center;
+  background-repeat: no-repeat, no-repeat;
+}
 .section + .section { border-top: 1px solid var(--line); }
 .section-sub { margin-top: 0.5rem; margin-bottom: 2.5rem; }
 
@@ -204,15 +216,17 @@ strong { font-weight: 650; }
 
 .brand-name { font-size: 0.9375rem; letter-spacing: -0.01em; }
 
+/* Calendario del sol en lugar de las iniciales. La foto trae fondo negro y la
+   piedra queda centrada, así que el recorte cuadrado no le corta los extremos. */
 .brand-mark {
-  display: grid;
-  place-items: center;
+  display: block;
   width: 2rem;
   height: 2rem;
   border: 1px solid var(--line-strong);
   border-radius: 8px;
-  font-size: 0.8125rem;
-  letter-spacing: 0.04em;
+  object-fit: cover;
+  object-position: center;
+  background-color: #000;
 }
 
 .nav { display: flex; gap: clamp(1rem, 2.5vw, 2rem); }
@@ -532,5 +546,6 @@ strong { font-weight: 650; }
   :root { --bg: #fff; --text: #000; --muted: #444; --line: #ccc; }
   body { background: #fff; color: #000; padding-right: 0; }
   .site-header, .btn-row, .copy, .skip-link, .ruler { display: none; }
+  .hero { background-image: none; }
   .card { break-inside: avoid; }
 }
