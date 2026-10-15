@@ -76,13 +76,39 @@
 
   /* ---- Fichas de los proyectos en ventana modal ----
      Cada botón abre el <dialog> que indica su data-abre. Se cierra con el
-     botón ✕, con Escape (nativo) o pulsando el fondo. */
+     botón ✕, con Escape (nativo) o pulsando el fondo.
+     Al abrir, la página NO se mueve: se enfoca con preventScroll (porque el
+     <dialog> vive dentro de la sección y el navegador arrastraba la vista al
+     principio al enfocarlo) y, por si acaso, se repone la posición. */
+  function scrollActual() {
+    return window.pageYOffset || document.documentElement.scrollTop || 0;
+  }
+
+  /* Coloca el scroll sin animación (html usa scroll-behavior: smooth) */
+  function fijarScroll(y) {
+    var raiz = document.documentElement;
+    var previo = raiz.style.scrollBehavior;
+    raiz.style.scrollBehavior = 'auto';
+    window.scrollTo(0, y);
+    raiz.style.scrollBehavior = previo;
+  }
+
+  function mantenerScroll(y) {
+    if (scrollActual() !== y) { fijarScroll(y); }
+    window.requestAnimationFrame(function () {
+      if (scrollActual() !== y) { fijarScroll(y); }
+    });
+  }
+
   var abridores = document.querySelectorAll('[data-abre]');
   Array.prototype.forEach.call(abridores, function (boton) {
     boton.addEventListener('click', function () {
       var modal = document.getElementById(boton.getAttribute('data-abre'));
       if (!modal) { return; }
+
+      var y = scrollActual();
       modal.focoPrevio = boton;
+
       if (typeof modal.showModal === 'function') {
         modal.showModal();
       } else {
@@ -90,93 +116,94 @@
            con el botón, que sigue funcionando. */
         modal.setAttribute('open', '');
       }
+
       var cerrar = modal.querySelector('.modal-cerrar');
-      if (cerrar) { cerrar.focus(); }
+      if (cerrar) {
+        try {
+          cerrar.focus({ preventScroll: true });
+        } catch (e) {
+          cerrar.focus();
+        }
+      }
+      mantenerScroll(y);
     });
   });
 
   Array.prototype.forEach.call(document.querySelectorAll('dialog.modal'), function (modal) {
     function cerrar() {
+      var y = scrollActual();
       if (typeof modal.close === 'function') {
         modal.close();   /* el navegador devuelve el foco al botón de origen */
       } else {
         modal.removeAttribute('open');
-        if (modal.focoPrevio && modal.focoPrevio.focus) { modal.focoPrevio.focus(); }
+        if (modal.focoPrevio && modal.focoPrevio.focus) {
+          try { modal.focoPrevio.focus({ preventScroll: true }); } catch (e) { modal.focoPrevio.focus(); }
+        }
       }
+      mantenerScroll(y);
     }
 
     modal.addEventListener('click', function (evento) {
       /* Clic en el fondo (fuera de la ficha) o en el botón de cerrar */
       if (evento.target === modal || evento.target.closest('[data-cierra]')) { cerrar(); }
     });
+
+    /* Escape u otro cierre nativo: que tampoco salte la vista */
+    modal.addEventListener('close', function () { mantenerScroll(scrollActual()); });
   });
 
-  /* ---- El nombre de la portada viaja a la esquina al bajar ----
-     Mientras te desplazas, el h1 se encoge y se pega a la esquina superior
-     izquierda, donde vive el nombre del encabezado (que se oculta para no
-     duplicarlo). Al volver arriba regresa exactamente a su sitio, porque sólo
-     se usa un transform y el recorrido va ligado al scroll. */
-  var titulo = document.getElementById('hero-title');
-  var marca = document.querySelector('.brand-name');
-  var sinMovimiento = window.matchMedia
-    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /* ---- Encabezado: se compacta al bajar y marca la sección en la que estás ----
+     Un único escucha de scroll, agrupado con requestAnimationFrame. */
+  var enlacesNav = document.querySelectorAll('.nav a[href^="#"]');
+  var destinos = [];
 
-  if (titulo && marca && !sinMovimiento) {
-    var medidas = null;
-    var pedido = false;
+  Array.prototype.forEach.call(enlacesNav, function (enlace) {
+    var destino = document.getElementById(enlace.getAttribute('href').slice(1));
+    if (destino) { destinos.push({ enlace: enlace, destino: destino }); }
+  });
 
-    function medir() {
-      var previo = titulo.style.transform;
-      titulo.style.transform = 'none';
-      var caja = titulo.getBoundingClientRect();
-      titulo.style.transform = previo;
+  var pendienteEncabezado = false;
 
-      var cajaMarca = marca.getBoundingClientRect();
-      var fuenteTitulo = parseFloat(window.getComputedStyle(titulo).fontSize) || 0;
-      var fuenteMarca = parseFloat(window.getComputedStyle(marca).fontSize) || 0;
+  function pintarEncabezado() {
+    pendienteEncabezado = false;
 
-      medidas = {
-        docTop: caja.top + (window.pageYOffset || document.documentElement.scrollTop || 0),
-        left: caja.left,
-        alto: caja.height,
-        escala: fuenteTitulo ? Math.min(1, fuenteMarca / fuenteTitulo) : 0.2,
-        destinoLeft: cajaMarca.left,
-        destinoCentro: cajaMarca.top + cajaMarca.height / 2
-      };
+    var y = scrollActual();
+    document.body.classList.toggle('desplazado', y > 8);
+
+    if (!destinos.length) { return; }
+
+    /* La sección activa es la última cuyo borde superior pasó la línea de lectura */
+    var linea = (window.innerHeight || 0) * 0.35;
+    var activo = destinos[0];
+    var i;
+    for (i = 0; i < destinos.length; i++) {
+      if (destinos[i].destino.getBoundingClientRect().top <= linea) { activo = destinos[i]; }
+    }
+    /* Al final de la página gana siempre la última */
+    if (y + (window.innerHeight || 0) >= document.documentElement.scrollHeight - 2) {
+      activo = destinos[destinos.length - 1];
     }
 
-    function pintar() {
-      pedido = false;
-      if (!medidas || !medidas.escala) { return; }
-
-      var y = window.pageYOffset || document.documentElement.scrollTop || 0;
-      /* El viaje dura justo lo que tarda el título en llegar arriba por sí solo */
-      var viaje = Math.max(1, medidas.docTop - (medidas.destinoCentro - (medidas.alto * medidas.escala) / 2));
-      var p = Math.min(1, Math.max(0, y / viaje));
-      var e = p * p * (3 - 2 * p);   /* arranca y aterriza suave */
-
-      var escala = 1 + (medidas.escala - 1) * e;
-      var dx = (medidas.destinoLeft - medidas.left) * e;
-      var vista = medidas.docTop - y;
-      var destino = medidas.destinoCentro - (medidas.alto * escala) / 2;
-      var dy = (destino - vista) * e;
-
-      titulo.style.transform = 'translate(' + dx.toFixed(2) + 'px, ' + dy.toFixed(2)
-        + 'px) scale(' + escala.toFixed(4) + ')';
-      document.body.classList.toggle('marca-acoplada', e > 0.75);
-    }
-
-    function alDesplazar() {
-      if (!pedido) {
-        pedido = true;
-        window.requestAnimationFrame(pintar);
+    for (i = 0; i < destinos.length; i++) {
+      var esActivo = destinos[i] === activo;
+      destinos[i].enlace.classList.toggle('is-activo', esActivo);
+      if (esActivo) {
+        destinos[i].enlace.setAttribute('aria-current', 'true');
+      } else {
+        destinos[i].enlace.removeAttribute('aria-current');
       }
     }
-
-    medir();
-    pintar();
-    window.addEventListener('scroll', alDesplazar, { passive: true });
-    window.addEventListener('resize', function () { medir(); pintar(); });
-    window.addEventListener('load', function () { medir(); pintar(); });
   }
+
+  function alDesplazarPagina() {
+    if (!pendienteEncabezado) {
+      pendienteEncabezado = true;
+      window.requestAnimationFrame(pintarEncabezado);
+    }
+  }
+
+  pintarEncabezado();
+  window.addEventListener('scroll', alDesplazarPagina, { passive: true });
+  window.addEventListener('resize', alDesplazarPagina);
+  window.addEventListener('load', alDesplazarPagina);
 }());

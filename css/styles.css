@@ -1,20 +1,25 @@
 /* ==========================================================================
    tonatiuhliera.com — hoja de estilos
-   Minimalismo: fondo negro, texto blanco, sin librerías ni webfonts.
+   Estética futurista en escala de grises: negro frío, rejilla técnica de fondo,
+   esquinas duras, hairlines y plata como único acento. Las imágenes (calendario
+   del sol y escudo de la UNAM) se conservan tal cual. Sin librerías ni webfonts.
    ========================================================================== */
 
 :root {
-  --bg: #000000;
-  --surface: #0b0b0b;
-  --surface-2: #111111;
-  --text: #ffffff;
-  --muted: #a3a3a3;
-  --line: #232323;
-  --line-strong: #3a3a3a;
-  --azul: #002b5c;   /* azul UNAM, solo como acento */
-  --oro: #c8a45c;    /* oro UNAM, solo como acento */
-  --radius: 12px;
+  /* Escala de grises fría: la interfaz no usa ningún color (croma mínimo) */
+  --bg: #08090a;
+  --surface: #0d0e10;
+  --surface-2: #151617;
+  --text: #f0f1f3;
+  --muted: #8d9196;
+  --line: #1e2023;
+  --line-strong: #363a3e;
+  --acento: #dee1e4;                            /* plata: acento único */
+  --acento-tenue: rgba(222, 225, 228, 0.34);    /* hairlines de acento */
+  --acento-brillo: rgba(222, 225, 228, 0.22);   /* resplandores */
+  --radius: 3px;                                /* esquinas casi rectas */
   --wrap: 1040px;
+  --rejilla: 64px;                              /* paso de la rejilla de fondo */
   /* Grotesca cuadrada del sistema: Bahnschrift (tipo DIN) en Windows,
      Franklin Gothic si no, y grotescas neutras en macOS y Linux. */
   --sans: "Bahnschrift", "Franklin Gothic Medium", "Franklin Gothic Book",
@@ -33,12 +38,19 @@ html {
 
 body {
   margin: 0;
-  background: var(--bg);
+  background-color: var(--bg);
+  /* Rejilla técnica más un resplandor frío arriba: el aire de un HUD */
+  background-image:
+    radial-gradient(1100px 560px at 50% -12%, rgba(255, 255, 255, 0.075), transparent 62%),
+    linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+  background-size: auto, var(--rejilla) var(--rejilla), var(--rejilla) var(--rejilla);
+  background-attachment: fixed, fixed, fixed;
   color: var(--text);
   font-family: var(--sans);
   font-size: clamp(1rem, 0.95rem + 0.2vw, 1.0625rem);
   line-height: 1.65;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.012em;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -51,24 +63,27 @@ body {
 
 /* ---------- Tipografía ---------- */
 
-h1, h2, h3 { line-height: 1.15; letter-spacing: -0.02em; font-weight: 650; margin: 0; }
+h1, h2, h3 { line-height: 1.1; letter-spacing: 0.02em; font-weight: 650; margin: 0; }
 
-h1 { font-size: clamp(2.4rem, 1.6rem + 4vw, 4.25rem); }
-h2 { font-size: clamp(1.5rem, 1.2rem + 1.4vw, 2.125rem); margin-bottom: 0.35rem; }
+/* Los títulos de sección van en mayúsculas y muy espaciados; los h3 se quedan
+   tal cual para no desfigurar identificadores como mintic-base. */
+h1, h2 { text-transform: uppercase; }
+h1 { font-size: clamp(2.2rem, 1.5rem + 3.6vw, 4rem); letter-spacing: 0.08em; font-weight: 600; }
+h2 { font-size: clamp(1.35rem, 1.1rem + 1.2vw, 1.85rem); letter-spacing: 0.06em; margin-bottom: 0.35rem; }
 h3 { font-size: clamp(1.125rem, 1.05rem + 0.5vw, 1.4rem); }
 
 p { margin: 0 0 1rem; }
 p:last-child { margin-bottom: 0; }
 
-a { color: var(--text); text-decoration-color: var(--line-strong); text-underline-offset: 3px; }
-a:hover { text-decoration-color: var(--oro); }
+a { color: var(--text); text-decoration-color: var(--acento-tenue); text-underline-offset: 3px; }
+a:hover { text-decoration-color: var(--acento); }
 
 code {
   font-family: var(--mono);
   font-size: 0.875em;
   background: var(--surface-2);
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: 2px;
   padding: 0.1em 0.4em;
 }
 
@@ -76,19 +91,45 @@ strong { font-weight: 650; }
 
 .muted { color: var(--muted); }
 .small { font-size: 0.9375rem; }
-.lead { font-size: clamp(1.0625rem, 1rem + 0.5vw, 1.25rem); max-width: 62ch; color: #ededed; }
+.lead { font-size: clamp(1.0625rem, 1rem + 0.5vw, 1.25rem); max-width: 62ch; color: #d9dcdf; }
 
+/* Rótulo de la portada: monoespaciado y con una línea de acento delante */
 .eyebrow {
-  margin: 0 0 1rem;
-  font-size: 0.75rem;
-  letter-spacing: 0.16em;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin: 0 0 1.25rem;
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--oro);
+  color: var(--acento);
+}
+.eyebrow::before {
+  content: "";
+  flex: none;
+  width: 2rem;
+  height: 1px;
+  background: var(--acento);
 }
 
 /* ---------- Layout ---------- */
 
+/* Cada sección lleva su número, como los paneles de un instrumento */
+main { counter-reset: bloque; }
+
 .section { padding-block: clamp(4rem, 3rem + 6vw, 8rem); scroll-margin-top: 5rem; }
+.section:not(.hero) { counter-increment: bloque; }
+
+.section:not(.hero) h2::before {
+  content: "0" counter(bloque) " /";
+  margin-right: 0.7rem;
+  font-family: var(--mono);
+  font-size: 0.55em;
+  letter-spacing: 0.18em;
+  color: var(--muted);
+  vertical-align: 0.25em;
+}
 
 /* Portada: un poco más de aire y, de fondo, el calendario del sol.
    El velo negro deja el texto legible sobre los brillos de la piedra —blanco
@@ -117,9 +158,18 @@ strong { font-weight: 650; }
   position: sticky;
   top: 0;
   z-index: 20;
-  background: rgba(0, 0, 0, 0.86);
-  backdrop-filter: blur(10px);
+  background: rgba(8, 9, 10, 0.82);
+  backdrop-filter: blur(14px) saturate(0.4);
   border-bottom: 1px solid var(--line);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+/* Al bajar, el encabezado se compacta y gana profundidad */
+body.desplazado .site-header {
+  background: rgba(6, 7, 9, 0.94);
+  border-bottom-color: var(--line-strong);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06), 0 14px 34px rgba(0, 0, 0, 0.6);
 }
 
 .header-inner {
@@ -128,22 +178,18 @@ strong { font-weight: 650; }
   justify-content: space-between;
   gap: 1rem;
   min-height: 4rem;
+  transition: min-height 0.3s ease;
 }
+
+body.desplazado .header-inner { min-height: 3.3rem; }
 
 /* El nombre de la portada, mientras el JS lo lleva a la esquina:
    se escala desde su esquina superior izquierda y viaja por encima del
    encabezado (z-index mayor que el suyo, que es 20). */
 .hero h1 {
-  position: relative;
-  z-index: 25;
-  transform-origin: top left;
-  will-change: transform;
+  /* Resplandor frío de HUD sobre el nombre */
+  text-shadow: 0 0 46px rgba(222, 225, 228, 0.24);
 }
-
-/* Mientras el nombre está acoplado en la esquina, el del encabezado se oculta
-   para no duplicarlo. */
-.brand-name { transition: opacity 0.25s ease; }
-body.marca-acoplada .brand-name { opacity: 0; }
 
 /* ---------- Difuminación entre secciones ----------
    En lugar de la línea dura de 1 px, cada sección que sigue a otra abre con un
@@ -169,10 +215,13 @@ body.marca-acoplada .brand-name { opacity: 0; }
 /* Y al desplazarte, la sección entra difuminada y va enfocando.
    Sólo en navegadores con animaciones ligadas al scroll (animation-timeline);
    en el resto se ve igual, sin el efecto. La portada queda fuera: es lo primero
-   que se ve y no conviene que nazca desenfocada. */
+   que se ve y no conviene que nazca desenfocada.
+   La animación va a los HIJOS del contenedor y nunca a él, porque un ancestro
+   con filter o transform se convierte en bloque contenedor de los descendientes
+   fijos: eso descentraría las ventanas modales, que viven aquí dentro. */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
-    .section:not(.hero) > .wrap {
+    .section:not(.hero) > .wrap > :not(dialog) {
       animation-name: enfocar;
       animation-duration: auto;
       animation-timing-function: linear;
@@ -199,13 +248,19 @@ body.marca-acoplada .brand-name { opacity: 0; }
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.7rem;
   text-decoration: none;
-  font-weight: 650;
-  letter-spacing: -0.01em;
 }
 
-.brand-name { font-size: 0.9375rem; letter-spacing: -0.01em; }
+/* Mismo cuerpo, peso y espaciado que el h1 de la portada: así el nombre encaja
+   exacto cuando el JS lo acopla en la esquina (js/main.js). */
+.brand-name {
+  font-family: var(--sans);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
 
 /* Calendario del sol en lugar de las iniciales. La foto trae fondo negro y la
    piedra queda centrada, así que el recorte cuadrado no le corta los extremos. */
@@ -214,19 +269,83 @@ body.marca-acoplada .brand-name { opacity: 0; }
   width: 2rem;
   height: 2rem;
   border: 1px solid var(--line-strong);
-  border-radius: 8px;
+  border-radius: 2px;
   object-fit: cover;
   object-position: center;
   background-color: #000;
+  transition: transform 0.3s cubic-bezier(0.22, 0.61, 0.36, 1),
+              border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
+.brand:hover .brand-mark,
+.brand:focus-visible .brand-mark {
+  border-color: var(--acento);
+  box-shadow: 0 0 22px var(--acento-brillo);
+  transform: rotate(-6deg) scale(1.06);
+}
+
+body.desplazado .brand-mark { transform: scale(0.92); }
+body.desplazado .brand:hover .brand-mark { transform: rotate(-6deg) scale(1); }
+
 .nav { display: flex; gap: clamp(1rem, 2.5vw, 2rem); }
+
 .nav a {
+  position: relative;
+  padding-block: 0.4rem;
   text-decoration: none;
   color: var(--muted);
-  font-size: 0.9375rem;
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  transition: color 0.22s ease, text-shadow 0.22s ease;
 }
-.nav a:hover { color: var(--text); }
+
+/* Subrayado que crece desde la izquierda */
+.nav a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--acento) 0%, rgba(222, 225, 228, 0.15) 100%);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.nav a:hover,
+.nav a:focus-visible { color: var(--text); text-shadow: 0 0 18px var(--acento-brillo); }
+.nav a:hover::after,
+.nav a:focus-visible::after { transform: scaleX(1); }
+
+/* Sección en la que estás: marcada por el JS con .is-activo */
+.nav a.is-activo { color: var(--text); }
+.nav a.is-activo::after {
+  transform: scaleX(1);
+  background: var(--acento);
+  box-shadow: 0 0 12px var(--acento-brillo);
+}
+
+/* Punto que late en el enlace de la sección visible */
+.nav a.is-activo::before {
+  content: "";
+  position: absolute;
+  left: -0.6rem;
+  top: 50%;
+  width: 3px;
+  height: 3px;
+  margin-top: -1.5px;
+  background: var(--acento);
+  box-shadow: 0 0 8px var(--acento-brillo);
+  animation: latido 2.4s ease-in-out infinite;
+}
+
+@keyframes latido {
+  0%, 100% { opacity: 0.35; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
 
 /* ---------- Botones ---------- */
 
@@ -235,25 +354,28 @@ body.marca-acoplada .brand-name { opacity: 0; }
 .btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.55rem;
-  padding: 0.7rem 1.15rem;
-  border-radius: 999px;
+  gap: 0.6rem;
+  padding: 0.72rem 1.25rem;
+  border-radius: var(--radius);
   border: 1px solid var(--line-strong);
-  background: transparent;
+  background: rgba(255, 255, 255, 0.02);
   color: var(--text);
   font: inherit;
-  font-size: 0.9375rem;
+  font-size: 0.75rem;
   font-weight: 550;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
   text-decoration: none;
   cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease,
+              box-shadow 0.18s ease, transform 0.18s ease;
 }
 
-.btn-primary { background: var(--text); color: #000; border-color: var(--text); }
-.btn-primary:hover { background: #e2e2e2; border-color: #e2e2e2; }
-.btn-outline:hover { border-color: var(--text); background: var(--surface-2); }
-.btn-ghost { color: var(--muted); border-color: var(--line); }
-.btn-ghost:hover { color: var(--text); border-color: var(--line-strong); background: var(--surface-2); }
+.btn-primary { background: var(--text); color: #07080a; border-color: var(--text); }
+.btn-primary:hover { background: var(--acento); border-color: var(--acento); box-shadow: 0 0 26px var(--acento-brillo); }
+.btn-outline:hover { border-color: var(--text); background: rgba(255, 255, 255, 0.05); }
+.btn-ghost { color: var(--muted); border-color: var(--line); background: transparent; }
+.btn-ghost:hover { color: var(--text); border-color: var(--line-strong); background: rgba(255, 255, 255, 0.04); }
 
 .btn:active { transform: translateY(1px); }
 
@@ -261,25 +383,56 @@ body.marca-acoplada .brand-name { opacity: 0; }
 
 /* ---------- Tarjetas ---------- */
 
+/* Panel de vidrio con esquinas marcadas (corchetes de HUD) */
 .card {
-  background: var(--surface);
+  position: relative;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.035) 0%, rgba(255, 255, 255, 0.008) 100%);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: clamp(1.25rem, 3vw, 1.75rem);
 }
 
-/* ---------- Lista de proyectos (desplegable) ----------
-   Cada proyecto muestra solo su nombre; al pulsarlo se abre su ficha en una
-   ventana modal (ver .modal más abajo y js/main.js). */
+.card::before,
+.card::after {
+  content: "";
+  position: absolute;
+  width: 13px;
+  height: 13px;
+  border: 1px solid var(--acento-tenue);
+  pointer-events: none;
+}
+.card::before { top: -1px; left: -1px; border-right: 0; border-bottom: 0; }
+.card::after { bottom: -1px; right: -1px; border-left: 0; border-top: 0; }
+
+/* ---------- Lista de proyectos ----------
+   Cada proyecto muestra solo su nombre, en monoespaciada (son identificadores);
+   al pulsarlo se abre su ficha en una ventana modal (ver .modal y js/main.js). */
 
 .projects { border-top: 1px solid var(--line); }
 
-.pitem { border-bottom: 1px solid var(--line); }
+.pitem { position: relative; border-bottom: 1px solid var(--line); }
+
+/* Barra de acento que se despliega al pasar el cursor */
+.pitem::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--acento);
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 0.26s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.pitem:hover::before { transform: scaleY(1); }
 
 .pitem h3 {
   margin: 0;
-  font-size: clamp(1.05rem, 0.98rem + 0.6vw, 1.35rem);
   min-width: 0;
+  font-family: var(--mono);
+  font-size: clamp(0.95rem, 0.9rem + 0.5vw, 1.15rem);
+  letter-spacing: 0.01em;
 }
 
 .pitem-head {
@@ -297,9 +450,9 @@ body.marca-acoplada .brand-name { opacity: 0; }
   text-align: left;
   overflow-wrap: anywhere;
   cursor: pointer;
-  transition: color 0.18s ease;
+  transition: color 0.18s ease, text-shadow 0.18s ease;
 }
-.pitem-head:hover { color: var(--oro); }
+.pitem-head:hover { color: var(--acento); text-shadow: 0 0 22px var(--acento-brillo); }
 
 /* Marca +: indica que hay más información */
 .pitem-mark {
@@ -318,26 +471,34 @@ body.marca-acoplada .brand-name { opacity: 0; }
 .pitem-mark::before { left: 0; right: 0; top: calc(50% - 0.5px); height: 1px; }
 .pitem-mark::after { top: 0; bottom: 0; left: calc(50% - 0.5px); width: 1px; }
 .pitem-head:hover .pitem-mark::before,
-.pitem-head:hover .pitem-mark::after { background: var(--oro); }
+.pitem-head:hover .pitem-mark::after { background: var(--acento); }
 .pitem-head:hover .pitem-mark { transform: rotate(90deg); }
 
 /* ---------- Ventana modal de la ficha ---------- */
 
+/* Centrado explícito en la ventana. Ojo: NO poner aquí position: relative ni
+   static; el navegador da position: fixed a dialog:modal, pero cualquier
+   position de autor la pisa y la ficha acabaría colocada en su sitio del flujo
+   (dentro de la sección) en vez de centrada sobre el fondo difuminado. */
 .modal {
-  width: min(640px, 92vw);
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  height: fit-content;
+  width: min(620px, 92vw);
   max-height: min(84vh, 46rem);
   overflow: auto;
   padding: clamp(1.25rem, 3vw, 1.75rem);
-  background: var(--surface);
+  background: linear-gradient(180deg, rgba(21, 22, 23, 0.98) 0%, rgba(13, 14, 16, 0.98) 100%);
   color: var(--text);
   border: 1px solid var(--line-strong);
   border-radius: var(--radius);
-  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.65);
+  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.7);
 }
 
 .modal::backdrop {
-  background: rgba(0, 0, 0, 0.72);
-  backdrop-filter: blur(3px);
+  background: rgba(4, 5, 7, 0.78);
+  backdrop-filter: blur(4px) saturate(0.3);
 }
 
 .modal-cabeza {
@@ -345,7 +506,9 @@ body.marca-acoplada .brand-name { opacity: 0; }
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  margin-bottom: 0.9rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid var(--line);
 }
 
 .modal-cerrar {
@@ -356,15 +519,22 @@ body.marca-acoplada .brand-name { opacity: 0; }
   padding: 0;
   background: transparent;
   border: 1px solid var(--line-strong);
-  border-radius: 8px;
+  border-radius: 2px;
   color: var(--muted);
   cursor: pointer;
   line-height: 1;
-  transition: color 0.18s ease, border-color 0.18s ease;
+  transition: color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
 }
-.modal-cerrar:hover { color: var(--text); border-color: var(--text); }
+.modal-cerrar:hover { color: var(--text); border-color: var(--acento); box-shadow: 0 0 18px var(--acento-brillo); }
 
-.modal-titulo { margin-bottom: 0.75rem; overflow-wrap: anywhere; }
+/* El nombre del proyecto va en monoespaciada, como la lista */
+.modal-titulo {
+  margin-bottom: 0.75rem;
+  overflow-wrap: anywhere;
+  font-family: var(--mono);
+  font-size: clamp(1.05rem, 1rem + 0.6vw, 1.35rem);
+  letter-spacing: 0.01em;
+}
 .modal .tags { margin-bottom: 1rem; }
 .modal p { font-size: 0.9375rem; }
 .modal p:last-of-type { margin-bottom: 0; }
@@ -373,12 +543,15 @@ body.marca-acoplada .brand-name { opacity: 0; }
 .tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0; }
 
 .tag {
-  font-size: 0.75rem;
-  letter-spacing: 0.03em;
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--muted);
   border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 0.15rem 0.6rem;
+  border-radius: 2px;
+  padding: 0.2rem 0.55rem;
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .project-actions {
@@ -387,30 +560,36 @@ body.marca-acoplada .brand-name { opacity: 0; }
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 0.6rem;
-  padding-top: 0.5rem;
+  padding-top: 0.6rem;
   border-top: 1px solid var(--line);
 }
 
 .link-arrow {
   text-decoration: none;
+  font-family: var(--mono);
+  font-size: 0.75rem;
   font-weight: 550;
-  font-size: 0.9375rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
-.link-arrow:hover { color: var(--oro); }
+.link-arrow:hover { color: var(--acento); text-shadow: 0 0 20px var(--acento-brillo); }
 
 .copy {
+  font-family: var(--mono);
   font: inherit;
-  font-size: 0.8125rem;
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   color: var(--muted);
   background: transparent;
   border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 0.3rem 0.7rem;
+  border-radius: 2px;
+  padding: 0.35rem 0.7rem;
   cursor: pointer;
   transition: color 0.15s ease, border-color 0.15s ease;
 }
 .copy:hover { color: var(--text); border-color: var(--line-strong); }
-.copy[data-done="1"] { color: var(--oro); border-color: var(--oro); }
+.copy[data-done="1"] { color: var(--acento); border-color: var(--acento); }
 
 /* ---------- Tarjeta de estudiante ---------- */
 
@@ -433,14 +612,21 @@ body.marca-acoplada .brand-name { opacity: 0; }
   width: min(168px, 50vw);
   height: auto;
   display: block;
-  background: #f5f5f2;
+  background: #e9ecef;
   border: 1px solid var(--line-strong);
-  border-radius: var(--radius);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+  border-radius: 2px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.04);
 }
 
 .student-body h3 { margin-bottom: 0.35rem; }
-.student-place { color: var(--oro); font-size: 0.9375rem; margin-bottom: 1rem; }
+.student-place {
+  margin-bottom: 1rem;
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--acento);
+}
 
 .facts { list-style: none; margin: 1.25rem 0; padding: 0; border-top: 1px solid var(--line); }
 .facts li {
@@ -452,33 +638,51 @@ body.marca-acoplada .brand-name { opacity: 0; }
   border-bottom: 1px solid var(--line);
   font-size: 0.9375rem;
 }
-.fact-key { color: var(--muted); }
-.fact-val { text-align: right; }
+.fact-key {
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.fact-val { text-align: right; font-family: var(--mono); font-size: 0.875rem; }
 
-/* ---------- Pokedex ---------- */
+/* ---------- Etiqueta de sección ---------- */
 
 .badge {
   display: inline-block;
   margin-right: 0.5rem;
-  font-size: 0.6875rem;
-  letter-spacing: 0.14em;
+  font-family: var(--mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  border: 1px solid var(--line-strong);
-  border-radius: 999px;
-  padding: 0.2rem 0.65rem;
-  color: var(--muted);
+  border: 1px solid var(--acento-tenue);
+  border-radius: 2px;
+  padding: 0.2rem 0.6rem;
+  color: var(--acento);
+  background: rgba(255, 255, 255, 0.03);
   vertical-align: middle;
 }
 
 /* ---------- Footer y notas ---------- */
 
-.site-footer { border-top: 1px solid var(--line); padding-block: 2rem; }
+.site-footer {
+  border-top: 1px solid var(--line);
+  padding-block: 2rem;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent);
+}
 .footer-inner { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; justify-content: space-between; }
-.footer-inner p { margin: 0; }
+.footer-inner p {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
 .footer-inner a { text-decoration: none; color: var(--muted); }
-.footer-inner a:hover { color: var(--text); }
+.footer-inner a:hover { color: var(--acento); }
 
-.note { margin-top: 0.85rem; color: var(--oro); font-size: 0.875rem; }
+.note { margin-top: 0.85rem; color: var(--acento); font-family: var(--mono); font-size: 0.75rem; }
 
 /* ---------- Menú móvil ---------- */
 
@@ -486,7 +690,7 @@ body.marca-acoplada .brand-name { opacity: 0; }
   display: none;
   background: transparent;
   border: 1px solid var(--line-strong);
-  border-radius: 8px;
+  border-radius: 2px;
   width: 2.5rem;
   height: 2.25rem;
   cursor: pointer;
@@ -508,8 +712,22 @@ body.marca-acoplada .brand-name { opacity: 0; }
 .nav-toggle-bars::before { top: -5px; }
 .nav-toggle-bars::after { top: 5px; }
 
+.nav-toggle-bars,
+.nav-toggle-bars::before,
+.nav-toggle-bars::after {
+  transition: transform 0.26s cubic-bezier(0.22, 0.61, 0.36, 1), background-color 0.26s ease;
+}
+
+/* Abierto: las tres barras se cruzan en aspa */
+.nav-toggle[aria-expanded="true"] .nav-toggle-bars { background: transparent; }
+.nav-toggle[aria-expanded="true"] .nav-toggle-bars::before { transform: translateY(5px) rotate(45deg); }
+.nav-toggle[aria-expanded="true"] .nav-toggle-bars::after { transform: translateY(-5px) rotate(-45deg); }
+.nav-toggle:hover { border-color: var(--acento); }
+
 @media (max-width: 640px) {
   .nav-toggle { display: grid; }
+
+  /* El panel se despliega con una transición corta (antes aparecía de golpe) */
   .nav {
     position: absolute;
     top: 100%;
@@ -517,14 +735,37 @@ body.marca-acoplada .brand-name { opacity: 0; }
     right: 0;
     flex-direction: column;
     gap: 0;
-    background: #000;
+    background: #060709;
     border-bottom: 1px solid var(--line);
-    padding: 0.5rem clamp(1.1rem, 4vw, 2rem) 1rem;
-    display: none;
+    padding: 0 clamp(1.1rem, 4vw, 2rem);
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-0.5rem);
+    transition: max-height 0.34s cubic-bezier(0.22, 0.61, 0.36, 1),
+                transform 0.34s cubic-bezier(0.22, 0.61, 0.36, 1),
+                opacity 0.24s ease,
+                padding 0.34s cubic-bezier(0.22, 0.61, 0.36, 1),
+                visibility 0s linear 0.34s;
   }
-  .nav.is-open { display: flex; }
+
+  .nav.is-open {
+    max-height: 70vh;
+    padding: 0.4rem clamp(1.1rem, 4vw, 2rem) 1rem;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition: max-height 0.34s cubic-bezier(0.22, 0.61, 0.36, 1),
+                transform 0.34s cubic-bezier(0.22, 0.61, 0.36, 1),
+                opacity 0.3s ease,
+                padding 0.34s cubic-bezier(0.22, 0.61, 0.36, 1),
+                visibility 0s;
+  }
+
   .nav a { padding: 0.7rem 0; border-bottom: 1px solid var(--line); }
   .nav a:last-child { border-bottom: 0; }
+  .nav a.is-activo::before { left: 0; }
 }
 
 /* ---------- Accesibilidad ---------- */
@@ -541,24 +782,29 @@ body.marca-acoplada .brand-name { opacity: 0; }
   left: 1rem;
   top: -4rem;
   z-index: 50;
-  background: var(--text);
-  color: #000;
+  background: var(--acento);
+  color: #07080a;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   padding: 0.6rem 1rem;
-  border-radius: 8px;
+  border-radius: 2px;
   text-decoration: none;
   transition: top 0.15s ease;
 }
 .skip-link:focus { top: 1rem; }
 
 :focus-visible {
-  outline: 2px solid var(--oro);
+  outline: 2px solid var(--acento);
   outline-offset: 2px;
-  border-radius: 4px;
+  border-radius: 2px;
 }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition: none !important; animation: none !important; }
+  body { background-attachment: scroll, scroll, scroll; }
 }
 
 /* ---------- Impresión ---------- */
@@ -569,6 +815,7 @@ body.marca-acoplada .brand-name { opacity: 0; }
   .site-header, .btn-row, .copy, .skip-link { display: none; }
   .hero { background-image: none; }
   .section + .section { background-image: none; }
+  .card::before, .card::after { display: none; }
   .modal { display: none; }
   .card { break-inside: avoid; }
 }
