@@ -39,13 +39,9 @@ html {
 body {
   margin: 0;
   background-color: var(--bg);
-  /* Rejilla técnica más un resplandor frío arriba: el aire de un HUD */
-  background-image:
-    radial-gradient(1100px 560px at 50% -12%, rgba(255, 255, 255, 0.075), transparent 62%),
-    linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
-  background-size: auto, var(--rejilla) var(--rejilla), var(--rejilla) var(--rejilla);
-  background-attachment: fixed, fixed, fixed;
+  /* Resplandor frío arriba; la rejilla va en su propia capa reactiva */
+  background-image: radial-gradient(1100px 560px at 50% -12%, rgba(255, 255, 255, 0.075), transparent 62%);
+  background-attachment: fixed;
   color: var(--text);
   font-family: var(--sans);
   font-size: clamp(1rem, 0.95rem + 0.2vw, 1.0625rem);
@@ -53,6 +49,46 @@ body {
   letter-spacing: 0.012em;
   -webkit-font-smoothing: antialiased;
 }
+
+/* ---------- Rejilla técnica reactiva ----------
+   Capa fija por detrás del contenido (z-index negativo: queda sobre el fondo
+   del body y bajo el texto). Las líneas se desplazan con el scroll y con el
+   puntero; el brillo sigue al cursor. Todo por transform, sin repintar. */
+
+.rejilla {
+  position: fixed;
+  inset: -80px;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.rejilla-lineas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.028) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.028) 1px, transparent 1px);
+  background-size: var(--rejilla) var(--rejilla);
+  transform: translate3d(var(--gx, 0px), var(--gy, 0px), 0);
+}
+
+.rejilla-brillo {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 560px;
+  height: 560px;
+  margin: -280px 0 0 -280px;
+  display: block;
+  background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.055), transparent 68%);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  transform: translate3d(var(--px, 50vw), var(--py, 30vh), 0);
+}
+
+.rejilla.rejilla-viva .rejilla-brillo { opacity: 1; }
 
 .wrap {
   width: 100%;
@@ -390,7 +426,13 @@ body.desplazado .brand:hover .brand-mark { transform: rotate(-6deg) scale(1); }
   border: 1px solid var(--line);
   border-radius: var(--radius);
   padding: clamp(1.25rem, 3vw, 1.75rem);
+  /* También se inclina en 3D con el puntero (js/main.js) */
+  transform: perspective(900px) rotateX(var(--tx, 0deg)) rotateY(var(--ty, 0deg));
+  transition: transform 0.25s cubic-bezier(0.22, 0.61, 0.36, 1), box-shadow 0.25s ease;
+  will-change: transform;
 }
+
+.card:hover { box-shadow: 0 22px 48px rgba(0, 0, 0, 0.5); }
 
 .card::before,
 .card::after {
@@ -404,13 +446,36 @@ body.desplazado .brand:hover .brand-mark { transform: rotate(-6deg) scale(1); }
 .card::before { top: -1px; left: -1px; border-right: 0; border-bottom: 0; }
 .card::after { bottom: -1px; right: -1px; border-left: 0; border-top: 0; }
 
-/* ---------- Lista de proyectos ----------
+/* ---------- Rejilla de proyectos ----------
    Cada proyecto muestra solo su nombre, en monoespaciada (son identificadores);
-   al pulsarlo se abre su ficha en una ventana modal (ver .modal y js/main.js). */
+   al pulsarlo se abre su ficha en una ventana modal (ver .modal y js/main.js).
+   La rejilla es fluida (auto-fit) y cada tarjeta se inclina en 3D siguiendo al
+   puntero, con un brillo que lo acompaña (variables --tx/--ty/--mx/--my). */
 
-.projects { border-top: 1px solid var(--line); }
+.projects {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: 0.9rem;
+  perspective: 1000px;
+}
 
-.pitem { position: relative; border-bottom: 1px solid var(--line); }
+.pitem {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.045) 0%, rgba(255, 255, 255, 0.008) 100%);
+  transform-style: preserve-3d;
+  transform: perspective(800px) rotateX(var(--tx, 0deg)) rotateY(var(--ty, 0deg));
+  transition: transform 0.25s cubic-bezier(0.22, 0.61, 0.36, 1),
+              border-color 0.25s ease, box-shadow 0.25s ease;
+  will-change: transform;
+}
+
+.pitem:hover {
+  border-color: var(--acento-tenue);
+  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
 
 /* Barra de acento que se despliega al pasar el cursor */
 .pitem::before {
@@ -424,8 +489,22 @@ body.desplazado .brand:hover .brand-mark { transform: rotate(-6deg) scale(1); }
   transform: scaleY(0);
   transform-origin: top;
   transition: transform 0.26s cubic-bezier(0.22, 0.61, 0.36, 1);
+  z-index: 1;
 }
 .pitem:hover::before { transform: scaleY(1); }
+
+/* Brillo que sigue al puntero dentro de la tarjeta */
+.pitem::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(255, 255, 255, 0.1), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.pitem:hover::after { opacity: 1; }
 
 .pitem h3 {
   margin: 0;
@@ -441,7 +520,8 @@ body.desplazado .brand:hover .brand-mark { transform: rotate(-6deg) scale(1); }
   justify-content: space-between;
   gap: 1rem;
   width: 100%;
-  padding: 1.15rem 0.25rem;
+  min-height: 5.4rem;
+  padding: 1.1rem 1rem;
   background: transparent;
   border: 0;
   color: inherit;
@@ -496,9 +576,35 @@ body.desplazado .brand:hover .brand-mark { transform: rotate(-6deg) scale(1); }
   box-shadow: 0 26px 70px rgba(0, 0, 0, 0.7);
 }
 
+/* Apertura: la ficha entra y el fondo se va difuminando. Al pasar el <dialog>
+   de display:none a visible, la animación se reinicia sola en cada apertura. */
+.modal[open] {
+  animation: abrirFicha 0.34s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+@keyframes abrirFicha {
+  from { opacity: 0; transform: translateY(1.1rem) scale(0.965); }
+  to   { opacity: 1; transform: none; }
+}
+
 .modal::backdrop {
-  background: rgba(4, 5, 7, 0.78);
-  backdrop-filter: blur(4px) saturate(0.3);
+  background-color: rgba(4, 5, 7, 0.82);
+  backdrop-filter: blur(7px) saturate(0.25);
+}
+
+.modal[open]::backdrop {
+  animation: difuminarFondo 0.42s ease both;
+}
+
+@keyframes difuminarFondo {
+  from {
+    background-color: rgba(4, 5, 7, 0);
+    backdrop-filter: blur(0) saturate(1);
+  }
+  to {
+    background-color: rgba(4, 5, 7, 0.82);
+    backdrop-filter: blur(7px) saturate(0.25);
+  }
 }
 
 .modal-cabeza {
@@ -768,6 +874,119 @@ body.desplazado .brand:hover .brand-mark { transform: rotate(-6deg) scale(1); }
   .nav a.is-activo::before { left: 0; }
 }
 
+/* ---------- Pantalla de carga ----------
+   Capa a pantalla completa con la barra y el estado. La retira el JS con
+   .carga-fuera y, por si el JS fallara, una animación de seguridad la oculta
+   igualmente a los 4,5 s: nunca deja la página bloqueada. */
+
+.carga {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(900px 520px at 50% 42%, #0d0f12 0%, #050607 72%);
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.5s ease, visibility 0s linear 0.5s;
+}
+
+/* Red de seguridad: si el JS no llegara a retirarla, esta animación la oculta
+   sola (a los 7 s, por detrás del tope de 5,5 s del JS). Va condicionada a que
+   NO esté ya retirada: si no, su keyframe inicial implícito sería el estado
+   visible anterior al cierre y la pantalla volvería a aparecer. */
+.carga:not(.carga-fuera) {
+  animation: cargaSeguro 0.5s ease 7s forwards;
+}
+
+.carga.carga-fuera { opacity: 0; visibility: hidden; }
+
+@keyframes cargaSeguro {
+  from { opacity: 0; visibility: hidden; }
+  to   { opacity: 0; visibility: hidden; }
+}
+
+/* Scanlines de monitor */
+.carga::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0 1px, transparent 1px 3px);
+}
+
+.carga-caja { position: relative; width: min(420px, 84vw); text-align: center; }
+
+.carga-marca {
+  margin: 0 0 1.65rem;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.44em;
+  text-transform: uppercase;
+  color: var(--acento);
+  text-shadow: 0 0 22px var(--acento-brillo);
+}
+
+.carga-barra {
+  height: 2px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+
+.carga-barra i {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: var(--acento);
+  box-shadow: 0 0 16px var(--acento-brillo);
+  transition: width 0.18s linear;
+}
+
+.carga-estado {
+  margin: 0.9rem 0 0;
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.carga-estado b { color: var(--acento); font-weight: 550; }
+
+/* ---------- Barrido glitch de las transiciones entre secciones ----------
+   Capa fija que barre la pantalla en franjas al cambiar de sección. Se dispara
+   añadiendo .glitch-activo (js/main.js) y se limpia al terminar la animación. */
+
+.glitch {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  background: repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.07) 0 2px, transparent 2px 6px);
+}
+
+.glitch.glitch-activo {
+  visibility: visible;
+  animation: glitchBarrido 0.42s steps(3, end) both;
+}
+
+@keyframes glitchBarrido {
+  0%   { opacity: 0; transform: translate3d(0, 0, 0); clip-path: inset(0 0 0 0); }
+  10%  { opacity: 1; transform: translate3d(-7px, 0, 0); clip-path: inset(12% 0 58% 0); }
+  28%  { transform: translate3d(8px, 0, 0); clip-path: inset(46% 0 22% 0); }
+  46%  { transform: translate3d(-5px, 0, 0); clip-path: inset(70% 0 4% 0); }
+  64%  { transform: translate3d(6px, 0, 0); clip-path: inset(4% 0 76% 0); }
+  82%  { transform: translate3d(-3px, 0, 0); clip-path: inset(0 0 0 0); }
+  100% { opacity: 0; transform: translate3d(0, 0, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .carga, .carga:not(.carga-fuera) { animation: none; }
+  .glitch { display: none; }
+  .pitem, .card { transform: none; }
+}
+
 /* ---------- Accesibilidad ---------- */
 
 .visually-hidden {
@@ -813,6 +1032,7 @@ body.desplazado .brand:hover .brand-mark { transform: rotate(-6deg) scale(1); }
   :root { --bg: #fff; --text: #000; --muted: #444; --line: #ccc; }
   body { background: #fff; color: #000; }
   .site-header, .btn-row, .copy, .skip-link { display: none; }
+  .carga, .glitch, .rejilla { display: none; }
   .hero { background-image: none; }
   .section + .section { background-image: none; }
   .card::before, .card::after { display: none; }

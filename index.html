@@ -30,9 +30,31 @@
   dialog.modal { display: block; position: static; width: auto; max-width: none; max-height: none; margin: 0 0 1.5rem; overflow: visible; }
   dialog.modal::backdrop { display: none; }
   .modal-cerrar { display: none; }
+  /* Sin JS la pantalla de carga no podría retirarse */
+  .carga { display: none; }
 </style></noscript>
 </head>
 <body>
+
+<!-- Pantalla de carga. Se retira sola al terminar de cargar (con red de
+     seguridad por CSS, para que nunca deje la página bloqueada). -->
+<div class="carga" id="carga" aria-hidden="true">
+  <div class="carga-caja">
+    <p class="carga-marca">Tonatiuh Liera</p>
+    <div class="carga-barra"><i id="cargaBarra"></i></div>
+    <p class="carga-estado"><b id="cargaPct">00</b>% · <span id="cargaTexto">iniciando sistema</span></p>
+  </div>
+</div>
+
+<!-- Rejilla técnica reactiva: sigue al puntero y acompaña al scroll -->
+<div class="rejilla" id="rejilla" aria-hidden="true">
+  <i class="rejilla-lineas"></i>
+  <i class="rejilla-brillo"></i>
+</div>
+
+<!-- Barrido glitch de las transiciones entre secciones -->
+<div class="glitch" id="glitch" aria-hidden="true"></div>
+
 <a class="skip-link" href="#inicio">Saltar al contenido</a>
 
 <header class="site-header">
