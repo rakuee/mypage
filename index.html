@@ -290,6 +290,15 @@
           </h3>
         </article>
 
+        <article class="pitem">
+          <h3>
+            <button class="pitem-head" type="button" data-abre="ficha-pokedexedit" aria-haspopup="dialog">
+              Pokédex editable
+              <span class="pitem-mark" aria-hidden="true"></span>
+            </button>
+          </h3>
+        </article>
+
         <!-- Próximo proyecto web: copia el <article> de arriba y su <dialog>. -->
 
       </div>
@@ -314,6 +323,33 @@
         <div class="project-actions">
           <a class="link-arrow" href="pokedex/">
             Abrir la Pokédex <span aria-hidden="true">→</span>
+          </a>
+        </div>
+      </dialog>
+
+      <dialog class="modal" id="ficha-pokedexedit" aria-labelledby="ficha-pokedexedit-titulo">
+        <div class="modal-cabeza">
+          <span class="badge">Aplicación web</span>
+          <button class="modal-cerrar" type="button" data-cierra aria-label="Cerrar">✕</button>
+        </div>
+        <h3 class="modal-titulo" id="ficha-pokedexedit-titulo">Pokédex editable</h3>
+        <p class="tags"><span class="tag">JavaScript</span><span class="tag">Node.js</span><span class="tag">Express</span><span class="tag">API REST</span></p>
+        <p>
+          Versión de la Pokédex con backend propio: los primeros 100 Pokémon viven en una
+          base de datos pequeña que puedes consultar, crear, editar y eliminar. El frontend
+          consume una API con las rutas <code>/get</code>, <code>/post</code>, <code>/put</code>
+          y <code>/delete</code>, y muestra el registro de cada petición.
+        </p>
+        <p class="muted small">
+          El backend corre en un servicio gratuito: si estuvo inactivo, la primera carga
+          puede tardar alrededor de un minuto.
+        </p>
+        <div class="project-actions">
+          <a class="link-arrow" href="pokedexedit/">
+            Abrir la Pokédex editable <span aria-hidden="true">→</span>
+          </a>
+          <a class="link-arrow" href="https://github.com/rakuee/mypage/tree/main/pokedexedit" target="_blank" rel="noopener noreferrer">
+            Ver el código <span aria-hidden="true">↗</span>
           </a>
         </div>
       </dialog>

@@ -1,0 +1,21 @@
+# Blueprint de Render para el backend de la Pokédex editable.
+# GitHub Pages sólo sirve archivos estáticos, así que el API vive aparte:
+# Render lee este archivo desde el repositorio y redepliega en cada push a main.
+# Guía: pokedexedit/README.md
+services:
+  - type: web
+    name: pokedexedit-api
+    runtime: node
+    plan: free
+    rootDir: pokedexedit/backend
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "22"
+      - key: ALLOWED_ORIGINS
+        value: https://tonatiuhliera.com,https://www.tonatiuhliera.com
