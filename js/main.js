@@ -251,86 +251,12 @@
     });
   }
 
-  /* ---- Pantalla de carga ----
-     Progreso decorativo y salida al terminar de cargar, con un mínimo visible
-     para que no parpadee y un tope por si el evento load tarda. */
-  var carga = document.getElementById('carga');
-  var cargaBarra = document.getElementById('cargaBarra');
-  var cargaPct = document.getElementById('cargaPct');
-  var cargaTexto = document.getElementById('cargaTexto');
-
-  if (carga) {
-    if (sinMovimiento) {
-      /* Sin animaciones: fuera de inmediato */
-      carga.classList.add('carga-fuera');
-      window.setTimeout(function () {
-        if (carga.parentNode) { carga.parentNode.removeChild(carga); }
-      }, 600);
-    } else {
-      var cargaInicio = Date.now();
-      var cargaCerrada = false;
-      var cargaAncho = 0;
-      /* La pantalla se queda como mínimo este tiempo (3 s). La barra tarda lo
-         mismo en llegar al 96 %, y el tope duro da 2,5 s de margen extra por si
-         el evento load tardara más de la cuenta. */
-      var cargaMinimo = 3000;
-      var cargaTope = cargaMinimo + 2500;
-      var cargaPasos = ['iniciando sistema', 'cargando interfaz', 'cargando imágenes', 'listo'];
-
-      function cargaAvanzar() {
-        if (cargaCerrada) { return; }
-        var t = Math.min(1, (Date.now() - cargaInicio) / cargaMinimo);
-        var objetivo = Math.round((1 - Math.pow(1 - t, 3)) * 96);
-        if (objetivo > cargaAncho) {
-          cargaAncho = objetivo;
-          if (cargaBarra) { cargaBarra.style.width = cargaAncho + '%'; }
-          if (cargaPct) { cargaPct.textContent = (cargaAncho < 10 ? '0' : '') + cargaAncho; }
-          if (cargaTexto) {
-            /* El estado avanza con el tiempo, no con el ancho, para que vaya
-               repartido a lo largo de toda la espera */
-            cargaTexto.textContent = cargaPasos[Math.min(cargaPasos.length - 1, Math.floor(t * cargaPasos.length))];
-          }
-        }
-        if (t < 1) { window.requestAnimationFrame(cargaAvanzar); }
-      }
-
-      function cargaCerrar() {
-        if (cargaCerrada) { return; }
-        cargaCerrada = true;
-        if (cargaBarra) { cargaBarra.style.width = '100%'; }
-        if (cargaPct) { cargaPct.textContent = '100'; }
-        if (cargaTexto) { cargaTexto.textContent = 'listo'; }
-
-        window.setTimeout(function () {
-          carga.classList.add('carga-fuera');
-          /* Sin animaciones pendientes: ni la red de seguridad ni ninguna otra
-             pueden volver a mostrarla. */
-          carga.style.animation = 'none';
-          /* Y fuera del DOM cuando acabe el desvanecido */
-          window.setTimeout(function () {
-            if (carga.parentNode) { carga.parentNode.removeChild(carga); }
-          }, 900);
-        }, 170);
-      }
-
-      function cargaIntentar() {
-        var transcurrido = Date.now() - cargaInicio;
-        if (transcurrido < cargaMinimo) {
-          window.setTimeout(cargaIntentar, cargaMinimo - transcurrido);
-          return;
-        }
-        cargaCerrar();
-      }
-
-      window.requestAnimationFrame(cargaAvanzar);
-      if (document.readyState === 'complete') {
-        cargaIntentar();
-      } else {
-        window.addEventListener('load', cargaIntentar);
-      }
-      window.setTimeout(cargaCerrar, cargaTope);   /* tope duro */
-    }
-  }
+  /* ---- Entrada del calendario ----
+     Sin pantalla de carga: el disco aparece en cuanto se pinta la página
+     (dos frames para que la transición de entrada llegue a verse). */
+  window.requestAnimationFrame(function () {
+    window.requestAnimationFrame(function () { document.body.classList.add('sol-listo'); });
+  });
 
   /* ---- Encabezado: se compacta al bajar y marca la sección en la que estás ----
      Un único escucha de scroll, agrupado con requestAnimationFrame. */
@@ -388,6 +314,319 @@
       pendienteEncabezado = true;
       window.requestAnimationFrame(pintarEncabezado);
     }
+  }
+
+  /* ---- Calendario del sol (portada animada) ----
+     Dibuja el disco en el <svg id="solDisco"> con el origen en el centro.
+     De dentro hacia fuera: cara del sol (imagen), Nahui Ollin con 4 cartuchos
+     que llevan a las secciones, anillo de puntos, anillo de los 20 días (cada
+     cuadro abre la ficha de un proyecto), anillo de rayos y banda exterior con
+     texto. Los proyectos se leen de la propia página (.pitem-head[data-abre]). */
+  var solSvg = document.getElementById('solDisco');
+  if (solSvg) { construirSol(solSvg); }
+
+  function construirSol(svg) {
+    var NS = 'http://www.w3.org/2000/svg';
+
+    function el(tag, attrs, padre) {
+      var nodo = document.createElementNS(NS, tag);
+      for (var k in attrs) {
+        if (Object.prototype.hasOwnProperty.call(attrs, k)) { nodo.setAttribute(k, attrs[k]); }
+      }
+      if (padre) { padre.appendChild(nodo); }
+      return nodo;
+    }
+    function polar(r, grados) {
+      var a = (grados - 90) * Math.PI / 180;
+      return (r * Math.cos(a)).toFixed(2) + ',' + (r * Math.sin(a)).toFixed(2);
+    }
+    function circulo(r, clase, padre) { return el('circle', { cx: 0, cy: 0, r: r, 'class': clase }, padre); }
+    function anillo(orden, segundos, inverso) {
+      var entra = el('g', { 'class': 'sol-entra', style: '--i:' + orden }, svg);
+      return el('g', {
+        'class': 'sol-gira' + (inverso ? ' sol-inverso' : ''),
+        style: '--t:' + segundos + 's'
+      }, entra);
+    }
+    function sigla(nombre) {
+      var palabras = nombre.replace(/([a-z])([A-Z])/g, '$1 $2').split(/[\s_\-]+/)
+        .filter(function (p) { return p && !/^(of|de|la|el|the)$/i.test(p); });
+      if (palabras.length > 1) { return (palabras[0][0] + palabras[palabras.length - 1][0]).toUpperCase(); }
+      return (palabras[0] || '?').slice(0, 2).toUpperCase();
+    }
+
+    /* Proyectos de la página */
+    var proyectos = [];
+    Array.prototype.forEach.call(document.querySelectorAll('.pitem-head[data-abre]'), function (boton) {
+      var ficha = boton.getAttribute('data-abre');
+      var modal = document.getElementById(ficha);
+      var seccion = boton.closest('section');
+      var badge = modal && modal.querySelector('.badge');
+      var nombre = boton.textContent.replace(/\s+/g, ' ').trim();
+      proyectos.push({
+        ficha: ficha,
+        nombre: nombre,
+        sigla: boton.getAttribute('data-sigla') || sigla(nombre),
+        tipo: badge ? badge.textContent.trim() : 'Proyecto',
+        seccion: seccion ? seccion.id : ''
+      });
+    });
+
+    /* Secciones del menú (sin Inicio) para los cartuchos */
+    var secciones = [];
+    Array.prototype.forEach.call(document.querySelectorAll('.nav a[href^="#"]'), function (enlace) {
+      var href = enlace.getAttribute('href');
+      if (href !== '#inicio' && secciones.length < 4) { secciones.push({ href: href, nombre: enlace.textContent.trim() }); }
+    });
+
+    /* Recorte circular de la cara */
+    var defs = el('defs', {}, svg);
+    var clip = el('clipPath', { id: 'solCaraRecorte' }, defs);
+    circulo(100, '', clip);
+    el('path', { id: 'solTextoCamino', d: 'M0,-482 A482,482 0 1 1 0,482 A482,482 0 1 1 0,-482' }, defs);
+
+    var i, g, a;
+
+    /* 6 · Banda exterior: marcas y texto en círculo */
+    g = anillo(5, 320, false);
+    circulo(498, 'sol-trazo', g);
+    circulo(468, 'sol-trazo', g);
+    circulo(455, 'sol-tenue', g);
+    for (i = 0; i < 104; i++) {
+      el('circle', { cx: 0, cy: -461.5, r: 2, 'class': 'sol-punto', transform: 'rotate(' + (i * 360 / 104) + ')' }, g);
+    }
+    var texto = el('text', { 'class': 'sol-texto' }, g);
+    var camino = el('textPath', { href: '#solTextoCamino', textLength: 2990, lengthAdjust: 'spacing' }, texto);
+    camino.textContent = 'Tonatiuh Liera · UNAM · ENES Morelia · Tecnologías para la Información en Ciencias · Proyectos · ';
+
+    /* 5 · Rayos y plumas */
+    g = anillo(4, 210, true);
+    circulo(448, 'sol-trazo', g);
+    circulo(402, 'sol-trazo', g);
+    for (i = 0; i < 120; i++) {
+      el('line', { x1: 0, y1: -406, x2: 0, y2: -444, 'class': 'sol-tenue', transform: 'rotate(' + (i * 3) + ')' }, g);
+    }
+    for (i = 0; i < 8; i++) {
+      var ang = i * 45;
+      el('polygon', { points: polar(400, ang - 10) + ' ' + polar(476, ang) + ' ' + polar(400, ang + 10), 'class': 'sol-fondo' }, g);
+      el('line', { x1: 0, y1: -404, x2: 0, y2: -462, 'class': 'sol-tenue', transform: 'rotate(' + ang + ')' }, g);
+      el('polygon', { points: polar(400, ang + 22.5 - 4) + ' ' + polar(440, ang + 22.5) + ' ' + polar(400, ang + 22.5 + 4), 'class': 'sol-fondo' }, g);
+    }
+
+    /* 4 · Anillo de los 20 días: los accesos a los proyectos */
+    g = anillo(3, 150, false);
+    circulo(394, 'sol-trazo', g);
+    circulo(318, 'sol-trazo', g);
+    var vistos = {};
+    for (i = 0; i < 20; i++) {
+      var p = proyectos.length ? proyectos[i % proyectos.length] : null;
+      a = el('a', {
+        'class': 'sol-cuadro',
+        transform: 'rotate(' + (i * 18) + ') translate(0,-356)'
+      }, g);
+      if (p) {
+        a.setAttribute('href', '#' + p.seccion);
+        a.setAttribute('data-ficha', p.ficha);
+        a.setAttribute('data-nombre', p.nombre);
+        a.setAttribute('data-tipo', p.tipo);
+        a.setAttribute('aria-label', p.nombre + ': abrir ficha');
+        /* Sólo el primer cuadro de cada proyecto entra en el orden del tabulador */
+        if (vistos[p.ficha]) {
+          a.setAttribute('tabindex', '-1');
+          a.setAttribute('aria-hidden', 'true');
+        }
+        vistos[p.ficha] = true;
+      }
+      el('rect', { x: -32, y: -32, width: 64, height: 64, rx: 2, 'class': 'sol-caja' }, a);
+      el('rect', { x: -26, y: -26, width: 52, height: 52, 'class': 'sol-marco' }, a);
+      var num = el('text', { x: 0, y: -14, 'class': 'sol-num' }, a);
+      num.textContent = (i < 9 ? '0' : '') + (i + 1);
+      var letras = el('text', { x: 0, y: 16, 'class': 'sol-sigla' }, a);
+      letras.textContent = p ? p.sigla : '·';
+    }
+
+    /* 3 · Anillo de puntos (quincunces) */
+    g = anillo(2, 110, true);
+    circulo(312, 'sol-tenue', g);
+    circulo(280, 'sol-trazo', g);
+    for (i = 0; i < 40; i++) {
+      var q = el('g', { transform: 'rotate(' + (i * 9) + ') translate(0,-296)' }, g);
+      [[0, 0], [-6, -6], [6, -6], [-6, 6], [6, 6]].forEach(function (d) {
+        el('circle', { cx: d[0], cy: d[1], r: 1.8, 'class': 'sol-punto' }, q);
+      });
+      el('line', { x1: 0, y1: -283, x2: 0, y2: -309, 'class': 'sol-tenue', transform: 'rotate(' + (i * 9 + 4.5) + ')' }, g);
+    }
+
+    /* 2 · Nahui Ollin: aspa, flechas y 4 cartuchos hacia las secciones */
+    g = anillo(1, 170, false);
+    circulo(112, 'sol-trazo', g);
+    for (i = 0; i < 4; i++) {
+      var cardinal = i * 90;
+      var diagonal = 45 + i * 90;
+      el('polygon', { points: polar(112, diagonal - 14) + ' ' + polar(150, diagonal - 7) + ' ' + polar(150, diagonal + 7) + ' ' + polar(112, diagonal + 14), 'class': 'sol-fondo' }, g);
+      el('polygon', { points: polar(114, cardinal - 12) + ' ' + polar(178, cardinal) + ' ' + polar(114, cardinal + 12), 'class': 'sol-fondo' }, g);
+      var s = secciones[i];
+      a = el('a', { 'class': 'sol-cartucho', transform: 'rotate(' + diagonal + ') translate(0,-200)' }, g);
+      if (s) {
+        a.setAttribute('href', s.href);
+        a.setAttribute('aria-label', 'Ir a ' + s.nombre);
+        a.setAttribute('data-nombre', s.nombre);
+        a.setAttribute('data-tipo', 'Sección');
+      }
+      el('rect', { x: -50, y: -48, width: 100, height: 96, rx: 2, 'class': 'sol-caja' }, a);
+      el('rect', { x: -43, y: -41, width: 86, height: 82, 'class': 'sol-marco' }, a);
+      var rom = el('text', { x: 0, y: -18, 'class': 'sol-num' }, a);
+      rom.textContent = ['I', 'II', 'III', 'IV'][i];
+      var et = el('text', { x: 0, y: 8, 'class': 'sol-sigla' }, a);
+      et.textContent = s ? s.nombre.split(' ')[0] : '';
+      if (s && s.nombre.split(' ')[1]) {
+        var et2 = el('text', { x: 0, y: 24, 'class': 'sol-sigla' }, a);
+        et2.textContent = s.nombre.split(' ').slice(1).join(' ');
+      }
+    }
+
+    /* 1 · Cara del sol: la de la piedra, recortada y en grises (no gira) */
+    var cara = el('g', { 'class': 'sol-entra', style: '--i:0' }, svg);
+    circulo(104, 'sol-fondo', cara);
+    el('image', {
+      href: 'assets/calendariodelsol.jpg',
+      x: -645, y: -583, width: 1273, height: 1167,
+      'clip-path': 'url(#solCaraRecorte)',
+      'class': 'sol-cara',
+      'aria-hidden': 'true'
+    }, cara);
+    circulo(100, 'sol-trazo', cara);
+
+    /* Etiqueta flotante con el nombre completo y resaltado de los cuadros
+       del mismo proyecto. Sigue al puntero; con teclado se coloca junto al
+       cuadro enfocado. */
+    var tip = document.getElementById('solTip');
+    var tipTipo = document.getElementById('solTipo');
+    var tipNombre = document.getElementById('solNombre');
+    var senalado = null;
+
+    function colocarTip(x, y) {
+      if (!tip || tip.hidden) { return; }
+      var ancho = tip.offsetWidth;
+      var alto = tip.offsetHeight;
+      var vw = document.documentElement.clientWidth;
+      /* A la izquierda del puntero (el disco está pegado a la derecha) */
+      var tx = x - ancho - 18;
+      if (tx < 8) { tx = Math.min(x + 18, vw - ancho - 8); }
+      var ty = Math.max(8, y - alto / 2);
+      tip.style.setProperty('--tx', Math.round(tx) + 'px');
+      tip.style.setProperty('--ty', Math.round(ty) + 'px');
+    }
+
+    function senalar(objetivo) {
+      if (objetivo === senalado) { return; }
+      senalado = objetivo;
+      var ficha = objetivo && objetivo.getAttribute('data-ficha');
+      Array.prototype.forEach.call(svg.querySelectorAll('.sol-cuadro'), function (c) {
+        c.classList.toggle('is-hl', !!ficha && c.getAttribute('data-ficha') === ficha);
+      });
+      svg.classList.toggle('sol-enfoque', !!ficha);
+      if (!tip) { return; }
+      if (objetivo) {
+        tipTipo.textContent = objetivo.getAttribute('data-tipo');
+        tipNombre.textContent = objetivo.getAttribute('data-nombre');
+        tip.hidden = false;
+      } else {
+        tip.hidden = true;
+      }
+    }
+
+    svg.addEventListener('pointermove', function (evento) {
+      if (evento.pointerType === 'touch') { return; }
+      senalar(evento.target.closest('a[data-nombre]'));
+      colocarTip(evento.clientX, evento.clientY);
+    });
+    svg.addEventListener('pointerleave', function () { senalar(null); });
+    svg.addEventListener('focusin', function (evento) {
+      var objetivo = evento.target.closest('a[data-nombre]');
+      senalar(objetivo);
+      if (objetivo) {
+        var r = objetivo.getBoundingClientRect();
+        colocarTip(r.left, r.top + r.height / 2);
+      }
+    });
+    svg.addEventListener('focusout', function () { senalar(null); });
+    window.addEventListener('scroll', function () { senalar(null); }, { passive: true });
+
+    /* Clic: los cartuchos bajan a su sección (enlace nativo); los cuadros
+       saltan a la sección del proyecto y abren su ficha. */
+    svg.addEventListener('click', function (evento) {
+      var enlace = evento.target.closest('a[href]');
+      if (!enlace) { return; }
+      glitchar();
+      var ficha = enlace.getAttribute('data-ficha');
+      if (!ficha) { return; }
+      evento.preventDefault();
+      var destino = document.getElementById(enlace.getAttribute('href').slice(1));
+      if (destino) {
+        var raiz = document.documentElement;
+        var previo = raiz.style.scrollBehavior;
+        raiz.style.scrollBehavior = 'auto';
+        destino.scrollIntoView({ block: 'start' });
+        raiz.style.scrollBehavior = previo;
+      }
+      var boton = document.querySelector('.pitem-head[data-abre="' + ficha + '"]');
+      if (boton) { boton.click(); }
+      senalar(null);
+    });
+  }
+
+  /* ---- Calendario: acelera al desplazarte ----
+     Los anillos giran con animaciones CSS; al hacer scroll se sube su
+     playbackRate según la velocidad del desplazamiento y luego vuelve poco a
+     poco a la velocidad normal. Cambiar el ritmo no reinicia la animación,
+     así que el giro sigue continuo. */
+  var anillosSol = [];
+  if (solSvg && !sinMovimiento && typeof Element.prototype.getAnimations === 'function') {
+    var solImpulso = 1;            /* multiplicador actual de la velocidad */
+    var solYPrevia = scrollActual();
+    var solTPrevio = 0;
+    var solAnimando = false;
+    var SOL_MAXIMO = 16;           /* tope: hasta 16 veces más rápido */
+
+    var ritmoSol = function (ritmo) {
+      if (!anillosSol.length) {
+        Array.prototype.forEach.call(solSvg.querySelectorAll('.sol-gira'), function (g) {
+          anillosSol = anillosSol.concat(g.getAnimations());
+        });
+      }
+      for (var k = 0; k < anillosSol.length; k++) {
+        if (anillosSol[k].updatePlaybackRate) { anillosSol[k].updatePlaybackRate(ritmo); }
+        else { anillosSol[k].playbackRate = ritmo; }
+      }
+    };
+
+    var frenarSol = function () {
+      solImpulso = 1 + (solImpulso - 1) * 0.965;   /* ~2 s hasta el ritmo normal */
+      if (solImpulso < 1.02) { solImpulso = 1; }
+      ritmoSol(solImpulso);
+      if (solImpulso > 1) {
+        window.requestAnimationFrame(frenarSol);
+      } else {
+        solAnimando = false;
+      }
+    };
+
+    window.addEventListener('scroll', function () {
+      var ahora = window.performance ? performance.now() : Date.now();
+      var y = scrollActual();
+      var dt = Math.max(16, ahora - solTPrevio);
+      var velocidad = Math.abs(y - solYPrevia) / dt;   /* px por ms */
+      solYPrevia = y;
+      solTPrevio = ahora;
+      /* Sólo se acelera; nunca baja de golpe mientras sigues desplazándote */
+      solImpulso = Math.max(solImpulso, Math.min(SOL_MAXIMO, 1 + velocidad * 9));
+      ritmoSol(solImpulso);
+      if (!solAnimando) {
+        solAnimando = true;
+        window.requestAnimationFrame(frenarSol);
+      }
+    }, { passive: true });
   }
 
   pintarEncabezado();

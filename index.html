@@ -30,21 +30,11 @@
   dialog.modal { display: block; position: static; width: auto; max-width: none; max-height: none; margin: 0 0 1.5rem; overflow: visible; }
   dialog.modal::backdrop { display: none; }
   .modal-cerrar { display: none; }
-  /* Sin JS la pantalla de carga no podría retirarse */
-  .carga { display: none; }
+  /* El calendario del sol se dibuja con JS */
+  .hero-sol { display: none; }
 </style></noscript>
 </head>
 <body>
-
-<!-- Pantalla de carga. Se retira sola al terminar de cargar (con red de
-     seguridad por CSS, para que nunca deje la página bloqueada). -->
-<div class="carga" id="carga" aria-hidden="true">
-  <div class="carga-caja">
-    <p class="carga-marca">Tonatiuh Liera</p>
-    <div class="carga-barra"><i id="cargaBarra"></i></div>
-    <p class="carga-estado"><b id="cargaPct">00</b>% · <span id="cargaTexto">iniciando sistema</span></p>
-  </div>
-</div>
 
 <!-- Rejilla técnica reactiva: sigue al puntero y acompaña al scroll -->
 <div class="rejilla" id="rejilla" aria-hidden="true">
@@ -109,6 +99,17 @@
         </a>
       </div>
     </div>
+    <!-- Calendario del sol: medio disco pegado al borde derecho de la portada.
+         Lo dibuja js/main.js a partir de los proyectos de la página: cada cuadro
+         del anillo de los días abre la ficha de un proyecto (se reparten en orden
+         entre los 20 cuadros) y los 4 cartuchos del centro llevan a las secciones.
+         Al añadir un proyecto (un .pitem-head con data-abre) aparece aquí solo.
+         Opcional: data-sigla="XY" en el botón para elegir las letras del cuadro. -->
+    <div class="hero-sol">
+      <svg class="sol-disco" id="solDisco" viewBox="-500 -500 1000 1000" role="group"
+           aria-label="Calendario del sol. Cada cuadro abre la ficha de un proyecto."></svg>
+    </div>
+    <div class="sol-tip" id="solTip" role="tooltip" hidden><span id="solTipo"></span><b id="solNombre"></b></div>
   </section>
 
   <!-- ============ ESTUDIANTE ============ -->

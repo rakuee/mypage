@@ -874,83 +874,156 @@ body.desplazado .brand:hover .brand-mark { transform: rotate(-6deg) scale(1); }
   .nav a.is-activo::before { left: 0; }
 }
 
-/* ---------- Pantalla de carga ----------
-   Capa a pantalla completa con la barra y el estado. La retira el JS con
-   .carga-fuera y, por si el JS fallara, una animación de seguridad la oculta
-   igualmente a los 4,5 s: nunca deja la página bloqueada. */
+/* ---------- Calendario del sol (portada animada) ----------
+   SVG dibujado por js/main.js con el origen (0,0) en el centro del viewBox.
+   Cada anillo lleva dos grupos: .sol-entra (aparición al cargar la página,
+   con body.sol-listo) y .sol-gira (giro lento e infinito). Los anillos
+   alternan sentido. Al pasar el puntero por el disco el giro se detiene para
+   que los cuadros sean fáciles de pulsar. */
 
-.carga {
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  display: grid;
-  place-items: center;
-  background: radial-gradient(900px 520px at 50% 42%, #0d0f12 0%, #050607 72%);
-  opacity: 1;
-  visibility: visible;
-  transition: opacity 0.5s ease, visibility 0s linear 0.5s;
-}
+/* Medio disco pegado al borde derecho de la portada: el contenedor mide la
+   mitad del disco y recorta la otra mitad. En escritorio va a la altura del
+   texto de presentación; en pantallas estrechas pasa debajo del texto. */
+.hero { position: relative; overflow-x: clip; }
+.hero > .wrap { position: relative; z-index: 1; }
 
-/* Red de seguridad: si el JS no llegara a retirarla, esta animación la oculta
-   sola (a los 7 s, por detrás del tope de 5,5 s del JS). Va condicionada a que
-   NO esté ya retirada: si no, su keyframe inicial implícito sería el estado
-   visible anterior al cierre y la pantalla volvería a aparecer. */
-.carga:not(.carga-fuera) {
-  animation: cargaSeguro 0.5s ease 7s forwards;
-}
-
-.carga.carga-fuera { opacity: 0; visibility: hidden; }
-
-@keyframes cargaSeguro {
-  from { opacity: 0; visibility: hidden; }
-  to   { opacity: 0; visibility: hidden; }
-}
-
-/* Scanlines de monitor */
-.carga::after {
-  content: "";
+.hero-sol {
+  --d: min(88vh, 820px, 64vw);          /* diámetro del disco */
   position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0 1px, transparent 1px 3px);
-}
-
-.carga-caja { position: relative; width: min(420px, 84vw); text-align: center; }
-
-.carga-marca {
-  margin: 0 0 1.65rem;
-  font-family: var(--mono);
-  font-size: 0.75rem;
-  letter-spacing: 0.44em;
-  text-transform: uppercase;
-  color: var(--acento);
-  text-shadow: 0 0 22px var(--acento-brillo);
-}
-
-.carga-barra {
-  height: 2px;
-  background: rgba(255, 255, 255, 0.12);
+  z-index: 2;
+  top: 50%;
+  right: 0;
+  width: calc(var(--d) / 2);
+  height: var(--d);
+  transform: translateY(-50%);
   overflow: hidden;
+  pointer-events: none;                 /* sólo el disco recibe el puntero */
 }
 
-.carga-barra i {
+.sol-disco {
+  position: absolute;
+  top: 0;
+  left: 0;
   display: block;
-  width: 0;
-  height: 100%;
-  background: var(--acento);
-  box-shadow: 0 0 16px var(--acento-brillo);
-  transition: width 0.18s linear;
+  width: var(--d);
+  height: var(--d);
+  overflow: visible;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.carga-estado {
-  margin: 0.9rem 0 0;
-  font-family: var(--mono);
-  font-size: 0.6875rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--muted);
+@media (max-width: 1000px) {
+  .hero-sol {
+    --d: min(130vw, 560px);
+    position: relative;
+    top: auto;
+    transform: none;
+    margin: 2.5rem 0 calc(-1 * clamp(4.5rem, 3rem + 8vw, 9rem)) auto;
+  }
 }
-.carga-estado b { color: var(--acento); font-weight: 550; }
+
+/* Etiqueta flotante con el nombre completo del cuadro señalado */
+.sol-tip {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  max-width: min(320px, 80vw);
+  padding: 0.55rem 0.8rem;
+  background: rgba(8, 9, 10, 0.94);
+  border: 1px solid var(--acento-tenue);
+  border-radius: 2px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 18px var(--acento-brillo);
+  font-family: var(--mono);
+  text-transform: uppercase;
+  pointer-events: none;
+  transform: translate3d(var(--tx, 0px), var(--ty, 0px), 0);
+}
+.sol-tip[hidden] { display: none; }
+.sol-tip span { font-size: 0.625rem; letter-spacing: 0.2em; color: var(--muted); }
+.sol-tip b    { font-size: 0.8125rem; letter-spacing: 0.08em; font-weight: 550; color: var(--acento); text-transform: none; word-break: break-word; }
+
+/* Trazos */
+.sol-trazo  { fill: none; stroke: var(--acento-tenue); stroke-width: 1.4; }
+.sol-tenue  { fill: none; stroke: rgba(255, 255, 255, 0.11); stroke-width: 1; }
+.sol-fondo  { fill: var(--bg); stroke: var(--acento-tenue); stroke-width: 1.4; }
+.sol-punto  { fill: rgba(222, 225, 228, 0.42); }
+.sol-texto  {
+  font-family: var(--mono);
+  font-size: 15px;
+  letter-spacing: 0.3em;
+  fill: rgba(222, 225, 228, 0.5);
+  text-transform: uppercase;
+}
+.sol-cara   { filter: grayscale(1) contrast(1.15) brightness(1.05); }
+
+/* Giro: duración y sentido por anillo */
+.sol-gira {
+  transform-box: view-box;
+  transform-origin: 0 0;
+  animation: solGira var(--t, 120s) linear infinite;
+}
+.sol-gira.sol-inverso { animation-direction: reverse; }
+
+@keyframes solGira { to { transform: rotate(360deg); } }
+
+.sol-disco:hover .sol-gira,
+.sol-disco:focus-within .sol-gira { animation-play-state: paused; }
+
+/* Aparición desde el centro hacia fuera */
+.sol-entra {
+  transform-box: view-box;
+  transform-origin: 0 0;
+  opacity: 0;
+  transform: scale(0.72) rotate(-40deg);
+  transition: opacity 1s ease, transform 1.6s cubic-bezier(0.2, 0.75, 0.2, 1);
+  transition-delay: calc(var(--i, 0) * 0.16s);
+}
+.sol-listo .sol-entra { opacity: 1; transform: none; }
+
+/* Cuadros (proyectos) y cartuchos (secciones) */
+.sol-cuadro, .sol-cartucho { cursor: pointer; outline: none; }
+.sol-cuadro .sol-caja,
+.sol-cartucho .sol-caja {
+  fill: var(--surface);
+  stroke: var(--line-strong);
+  stroke-width: 1.5;
+  transition: fill 0.25s ease, stroke 0.25s ease, opacity 0.25s ease;
+}
+.sol-marco { fill: none; stroke: rgba(255, 255, 255, 0.08); stroke-width: 1; }
+.sol-sigla {
+  font-family: var(--sans);
+  font-size: 24px;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  fill: var(--acento);
+  text-anchor: middle;
+}
+.sol-num {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  fill: var(--muted);
+  text-anchor: middle;
+}
+.sol-cartucho .sol-sigla { font-size: 15px; letter-spacing: 0.08em; text-transform: uppercase; }
+
+.sol-cuadro, .sol-cartucho { transition: opacity 0.25s ease, filter 0.25s ease; }
+.sol-cuadro.is-hl .sol-caja,
+.sol-cartucho:hover .sol-caja,
+.sol-cartucho:focus-visible .sol-caja { fill: #1c1e21; stroke: var(--acento); }
+.sol-cuadro.is-hl,
+.sol-cartucho:hover,
+.sol-cartucho:focus-visible { filter: drop-shadow(0 0 10px rgba(222, 225, 228, 0.35)); }
+.sol-cuadro:focus-visible .sol-caja { stroke-width: 3; }
+.sol-enfoque .sol-cuadro:not(.is-hl) { opacity: 0.35; }
+
+@media (prefers-reduced-motion: reduce) {
+  .sol-entra { opacity: 1; transform: none; }
+}
 
 /* ---------- Barrido glitch de las transiciones entre secciones ----------
    Capa fija que barre la pantalla en franjas al cambiar de sección. Se dispara
@@ -982,9 +1055,58 @@ body.desplazado .brand:hover .brand-mark { transform: rotate(-6deg) scale(1); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .carga, .carga:not(.carga-fuera) { animation: none; }
   .glitch { display: none; }
   .pitem, .card { transform: none; }
+}
+
+/* ---------- Barra de desplazamiento ----------
+   Riel negro con una hairline a la izquierda y marcas cada 64 px (el mismo paso
+   que la rejilla de fondo); el pulgar es una barra fina de plata que se
+   ensancha y brilla al pasar el puntero o al arrastrarla. Esquinas rectas.
+   Chrome, Edge y Safari usan ::-webkit-scrollbar; Firefox, scrollbar-color
+   (sólo donde no hay ::-webkit-scrollbar, porque en Chrome anularía lo demás). */
+
+::-webkit-scrollbar { width: 12px; height: 12px; }
+
+::-webkit-scrollbar-track {
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(90deg, var(--line) 0 1px, transparent 1px),
+    repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.07) 0 1px, transparent 1px var(--rejilla));
+  background-size: 100% 100%, 4px 100%;
+  background-position: 0 0, 100% 0;
+  background-repeat: no-repeat;
+}
+
+::-webkit-scrollbar-thumb {
+  /* Borde transparente + background-clip: la barra visible queda fina y
+     centrada dentro de los 12 px del riel */
+  border: 4px solid transparent;
+  border-radius: 0;
+  background-clip: padding-box;
+  background-color: rgba(222, 225, 228, 0.32);
+  min-height: 48px;
+}
+::-webkit-scrollbar-thumb:hover {
+  border-width: 3px;
+  background-color: rgba(222, 225, 228, 0.6);
+  box-shadow: 0 0 12px var(--acento-brillo);
+}
+::-webkit-scrollbar-thumb:active {
+  border-width: 3px;
+  background-color: var(--acento);
+}
+
+::-webkit-scrollbar-corner { background: var(--bg); }
+::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
+
+::selection { background: rgba(222, 225, 228, 0.85); color: #07080a; }
+
+@supports not selector(::-webkit-scrollbar) {
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(222, 225, 228, 0.4) var(--bg);
+  }
 }
 
 /* ---------- Accesibilidad ---------- */
@@ -1032,7 +1154,7 @@ body.desplazado .brand:hover .brand-mark { transform: rotate(-6deg) scale(1); }
   :root { --bg: #fff; --text: #000; --muted: #444; --line: #ccc; }
   body { background: #fff; color: #000; }
   .site-header, .btn-row, .copy, .skip-link { display: none; }
-  .carga, .glitch, .rejilla { display: none; }
+  .glitch, .rejilla, .hero-sol, .sol-tip { display: none; }
   .hero { background-image: none; }
   .section + .section { background-image: none; }
   .card::before, .card::after { display: none; }
